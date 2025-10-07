@@ -1,0 +1,263 @@
+.skills-section {
+  padding: 1rem;
+  background: var(--bg-color);
+  min-height: 100vh;
+}
+
+.skills-container {
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.skills-header {
+  text-align: center;
+  margin-bottom: 1rem;
+}
+
+.skills-title {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--text-color);
+  margin-bottom: 0.6rem;
+  position: relative;
+}
+
+.skills-title::after {
+  content: '';
+  position: absolute;
+  bottom: -5px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100px;
+  height: 4px;
+  background: linear-gradient(135deg, #ff009d 0%, #8000ff 100%);
+  border-radius: 2px;
+}
+
+.skills-subtitle {
+  font-size: 1.2rem;
+  color: #ff0073;
+  margin: 0;
+}
+
+.skills-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 50vh;
+  gap: 1rem;
+}
+
+.skills-loading .spinner {
+  width: 50px;
+  height: 50px;
+  border: 4px solid var(--border-color);
+  border-top-color: #ff00a6;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+.skills-loading p {
+  color: #143fff;
+  font-size: 1.1rem;
+}
+
+.no-skills {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 2rem;
+  color: #94a3b8;
+  text-align: center;
+}
+
+.no-skills svg {
+  margin-bottom: 1rem;
+  opacity: 0.5;
+}
+
+.no-skills p {
+  font-size: 1.1rem;
+  margin: 0;
+}
+
+.skills-categories {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.skill-category {
+  width: 100%;
+}
+
+.category-headers {
+    font-size: 1.2rem;
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+    letter-spacing: 0.5px;
+}
+
+.category-title {
+  font-weight: 700;
+  text-align: left;
+  text-transform: uppercase;
+}
+
+.category-description {
+  font-size: 1rem;
+  color: #ff00ae;
+  margin: 0;
+  text-align: left;
+}
+
+.skills-ribbon {
+  position: relative;
+  overflow: hidden;
+  background: rgba(102, 126, 234, 0.05);
+  border-radius: 15px;
+  padding: 1rem 0;
+  border: 1px solid rgba(102, 126, 234, 0.1);
+}
+
+.skills-scroll-container {
+  width: 100%;
+}
+
+.skills-list {
+  display: flex;
+  gap: 1rem;
+  animation: infiniteScroll 20s linear infinite;
+  width: fit-content;
+}
+
+.skills-list:hover {
+  animation-play-state: paused;
+}
+
+.skill-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 40px;
+  padding: 0.5rem;
+  background: var(--bg-color);
+  transition: all 0.3s ease;
+  border: 2px solid transparent;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.skill-item:hover {
+  border-color: #667eea;
+  box-shadow: 0 8px 25px rgba(102, 126, 234, 0.2);
+}
+
+.skill-image {
+  width: 50px;
+  height: 50px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(102, 126, 234, 0.1);
+  transition: transform 0.3s ease;
+}
+
+.skill-image img {
+  height: 100%;
+  object-fit: cover;
+}
+
+.skill-name {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text-color);
+  text-align: center;
+}
+
+@keyframes infiniteScroll {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .skills-section {
+    padding: 3rem 1rem;
+  }
+
+  .skills-header {
+    margin-bottom: 3rem;
+  }
+
+  .skills-title {
+    font-size: 2rem;
+  }
+
+  .skills-subtitle {
+    font-size: 1rem;
+  }
+
+  .category-title {
+    font-size: 1.5rem;
+  }
+
+  .skill-item {
+    min-width: 100px;
+    padding: 0.75rem;
+  }
+
+  .skill-image {
+    width: 50px;
+    height: 50px;
+  }
+
+  .skill-name {
+    font-size: 0.8rem;
+  }
+
+  .skills-list {
+    gap: 1.5rem;
+    animation-duration: 25s;
+  }
+}
+
+@media (max-width: 480px) {
+  .skills-categories {
+    gap: 2rem;
+  }
+
+  .category-header {
+    margin-bottom: 1rem;
+  }
+
+  .skills-ribbon {
+    padding: 1rem 0;
+  }
+
+  .skill-item {
+    min-width: 90px;
+    padding: 0.5rem;
+  }
+
+  .skill-image {
+    width: 45px;
+    height: 45px;
+  }
+
+  .skills-list {
+    gap: 1rem;
+    animation-duration: 20s;
+  }
+}
