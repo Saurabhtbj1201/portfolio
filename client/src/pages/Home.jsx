@@ -13,8 +13,21 @@ const Home = () => {
   const [currentText, setCurrentText] = useState('');
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [scrollProgress, setScrollProgress] = useState(0);
 
   const roles = ['Backend Development', 'Frontend Development', 'Data Analytics'];
+
+  // Progress bar scroll tracking
+  useEffect(() => {
+    const handleScroll = () => {
+      const totalHeight = document.documentElement.scrollHeight - window.innerHeight;
+      const progress = (window.scrollY / totalHeight) * 100;
+      setScrollProgress(Math.min(progress, 100));
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   // Separate useEffect for particles.js initialization
   useEffect(() => {
@@ -184,6 +197,14 @@ const Home = () => {
 
   return (
     <div>
+      {/* Progress Bar */}
+      <div className="progress-bar">
+        <div 
+          className="progress-bar-fill" 
+          style={{ width: `${scrollProgress}%` }}
+        ></div>
+      </div>
+
       {/* Hero Section with Particles */}
       <section id="home" className="hero-section">
         <div id="particles-js" className="particles-container"></div>
