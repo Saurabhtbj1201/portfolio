@@ -1,59 +1,59 @@
 # Portfolio Website
 
-Full-stack portfolio website with admin panel.
+A complete portfolio website with an admin control panel to manage your content.
 
-## Tech Stack
+## What's Built With
 
-- **Frontend**: React (Vite)
-- **Backend**: Node.js + Express
-- **Database**: MongoDB (Mongoose)
-- **Authentication**: JWT
-- **Image Storage**: Cloudinary
+- **Frontend**: React (fast development setup)
+- **Backend**: Node.js web server
+- **Database**: MongoDB (stores your data)
+- **Login System**: Secure user authentication
+- **Image Storage**: Cloud-based image hosting
 
-## Setup Instructions
+## How to Set Up
 
-### Server Setup
+### Setting Up the Server
 
-1. Navigate to server folder:
+1. Open the server folder:
    ```bash
    cd server
    ```
 
-2. Install dependencies:
+2. Install required packages:
    ```bash
    npm install
    ```
 
-3. Update `.env` file with your credentials:
-   - MongoDB URI
-   - JWT Secret
-   - Cloudinary credentials
+3. Add your account details to the `.env` file:
+   - Database connection
+   - Security key
+   - Image hosting account details
 
-4. Start server:
+4. Start the server:
    ```bash
    npm run dev
    ```
 
-### Client Setup
+### Setting Up the Website
 
-1. Navigate to client folder:
+1. Open the client folder:
    ```bash
    cd client
    ```
 
-2. Install dependencies:
+2. Install required packages:
    ```bash
    npm install
    ```
 
-3. Start development server:
+3. Start the website:
    ```bash
    npm run dev
    ```
 
-### Create Admin User
+### Create Your Admin Account
 
-Make a POST request to `http://localhost:5000/api/auth/register`:
+Send a request to `http://localhost:5000/api/auth/register`:
 ```json
 {
   "username": "admin",
@@ -62,7 +62,7 @@ Make a POST request to `http://localhost:5000/api/auth/register`:
 }
 ```
 
-**Note**: Remove or protect this route after creating the admin user.
+**Important**: Disable this registration feature after creating your admin account for security.
 
-## Project Structure
+## How It's Organized
 
