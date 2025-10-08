@@ -243,7 +243,6 @@
   font-size: 0.85rem;
   font-weight: 600;
   color: #667eea;
-  transition: all 0.3s ease;
 }
 
 .skill-badge:hover {
@@ -256,6 +255,7 @@
   height: 20px;
   object-fit: cover;
   border-radius: 4px;
+  transition: all 0.3s ease;
 }
 
 .project-links {
@@ -265,7 +265,7 @@
 }
 
 .project-link {
-  border: 2px solid #667eea;
+  border: 1px solid #667eea;
 }
 
 .project-link:hover {

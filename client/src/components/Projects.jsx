@@ -35,6 +35,14 @@ const Projects = () => {
 
   const toggleProjectsView = () => {
     setShowAllProjects(!showAllProjects);
+    
+    // If switching to "Show Featured Only", scroll to projects section
+    if (showAllProjects) {
+      const projectsSection = document.getElementById('projects');
+      if (projectsSection) {
+        projectsSection.scrollIntoView({ behavior: 'smooth' });
+      }
+    }
   };
 
   const openProjectModal = (project) => {
@@ -181,17 +189,12 @@ const Projects = () => {
 
                   {project.skills && project.skills.length > 0 && (
                     <div className="project-skills">
-                      {project.skills.slice(0, 4).map((skill) => (
+                      {project.skills.map((skill) => (
                         <span key={skill._id} className="skill-badge">
                           <img src={skill.image} alt={skill.name} />
                           {skill.name}
                         </span>
                       ))}
-                      {project.skills.length > 4 && (
-                        <span className="skill-badge">
-                          +{project.skills.length - 4} more
-                        </span>
-                      )}
                     </div>
                   )}
 
