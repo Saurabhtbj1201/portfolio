@@ -524,6 +524,10 @@
 }
 
 @media (max-width: 480px) {
+  .projects-container {
+    margin: 0rem;
+  }
+
   .projects-grid {
     grid-template-columns: 1fr;
   }

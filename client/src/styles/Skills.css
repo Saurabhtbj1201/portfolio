@@ -233,6 +233,10 @@
 }
 
 @media (max-width: 480px) {
+  .skills-container {
+    margin: 0;
+  }
+
   .skills-categories {
     gap: 2rem;
   }
