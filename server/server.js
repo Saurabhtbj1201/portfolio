@@ -14,6 +14,7 @@ import skillRoutes from './routes/skillRoutes.js';
 import educationRoutes from './routes/educationRoutes.js';
 import contactRoutes from './routes/contactRoutes.js';
 import projectRoutes from './routes/projectRoutes.js';
+import experienceRoutes from './routes/experienceRoutes.js';
 import { verifyEmailConnection } from './config/emailConfig.js';
 
 // Connect to database
@@ -43,6 +44,7 @@ app.use('/api/skills', skillRoutes);
 app.use('/api/education', educationRoutes);
 app.use('/api/contact', contactRoutes);
 app.use('/api/projects', projectRoutes);
+app.use('/api/experiences', experienceRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {

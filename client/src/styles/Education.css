@@ -376,4 +376,8 @@
     .educations-content {
         padding: 1.5rem;
     }
+
+    .educations-content {
+    margin-left: 0;
+    }
 }

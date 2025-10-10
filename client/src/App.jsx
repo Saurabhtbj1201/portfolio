@@ -8,6 +8,7 @@ import AdminSkills from './pages/admin/Skills';
 import AdminEducation from './pages/admin/Education';
 import AdminProjects from './pages/admin/Projects';
 import AdminContact from './pages/admin/Contact';
+import AdminExperience from './pages/admin/Experience';
 import PrivateRoute from './components/PrivateRoute';
 import Header from './components/Header';
 import Footer from './components/Footer';
@@ -82,6 +83,14 @@ function App() {
                   element={
                     <PrivateRoute>
                       <AdminContact />
+                    </PrivateRoute>
+                  }
+                />
+                <Route
+                  path="/admin/experience"
+                  element={
+                    <PrivateRoute>
+                      <AdminExperience />
                     </PrivateRoute>
                   }
                 />
