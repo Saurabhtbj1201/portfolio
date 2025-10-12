@@ -18,8 +18,10 @@ const Header = () => {
     { name: 'Projects', href: '#projects' },
     { name: 'Experience', href: '#experience' },
     { name: 'Education', href: '#education' },
+    { name: 'Certifications', href: '#certifications' },
     { name: 'Article', href: '#article' },
     { name: 'Awards', href: '#awards' },
+    { name: 'Testimonials', href: '#testimonials' },
     { name: 'Contact', href: '#contact' }
   ];
 
@@ -30,8 +32,10 @@ const Header = () => {
     { name: 'Projects', href: '/admin/projects' },
     { name: 'Experience', href: '/admin/experience' },
     { name: 'Education', href: '/admin/education' },
+    { name: 'Certifications', href: '/admin/certifications' },
     { name: 'Articles', href: '/admin/articles' },
     { name: 'Awards', href: '/admin/awards' },
+    { name: 'Testimonials', href: '/admin/testimonials' },
     { name: 'Contact', href: '/admin/contact' }
   ];
 

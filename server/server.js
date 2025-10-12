@@ -16,6 +16,7 @@ import contactRoutes from './routes/contactRoutes.js';
 import projectRoutes from './routes/projectRoutes.js';
 import experienceRoutes from './routes/experienceRoutes.js';
 import { verifyEmailConnection } from './config/emailConfig.js';
+import awardRoutes from './routes/awardRoutes.js';
 
 // Connect to database
 connectDB();
@@ -45,6 +46,7 @@ app.use('/api/education', educationRoutes);
 app.use('/api/contact', contactRoutes);
 app.use('/api/projects', projectRoutes);
 app.use('/api/experiences', experienceRoutes);
+app.use('/api/awards', awardRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {

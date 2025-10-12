@@ -6,6 +6,7 @@ import Education from '../components/Education';
 import Contact from '../components/Contact';
 import Projects from '../components/Projects';
 import Experience from '../components/Experience';
+import Awards from '../components/Awards';
 import '../styles/Home.css';
 
 const Home = () => {
@@ -327,10 +328,8 @@ const Home = () => {
         <p>Articles section content coming soon...</p>
       </section>
 
-      <section id="awards" style={{ padding: '4rem 2rem', minHeight: '50vh' }}>
-        <h2 style={{ fontSize: '2.5rem', marginBottom: '1rem' }}>Awards</h2>
-        <p>Awards section content coming soon...</p>
-      </section>
+      {/* Awards Section */}
+      <Awards />
 
       {/* Contact Section */}
       <Contact />
