@@ -139,10 +139,15 @@ const AdminCertifications = () => {
     // Clear any selected image file since we're using existing organization logo
     setImageFile(null);
     
-    // Reset file input if it exists
+    // Reset both file inputs if they exist
     const imageInput = document.querySelector('input[type="file"][accept="image/*"]');
     if (imageInput) {
       imageInput.value = '';
+    }
+    
+    const certificateInput = document.querySelector('input[type="file"][accept=".pdf,.jpg,.jpeg,.png"]');
+    if (certificateInput) {
+      certificateInput.value = '';
     }
   };
 
@@ -165,6 +170,12 @@ const AdminCertifications = () => {
     // If organization input changes manually, clear selected organization
     if (name === 'organization') {
       setSelectedOrganization(null);
+      // Also clear any selected image file
+      setImageFile(null);
+      const imageInput = document.querySelector('input[type="file"][accept="image/*"]');
+      if (imageInput) {
+        imageInput.value = '';
+      }
     }
   };
 
@@ -540,12 +551,12 @@ const AdminCertifications = () => {
                   <label>Organization Logo/Image</label>
                   {selectedOrganization && selectedOrganization.image && !imageFile && (
                     <div className="current-logo-preview">
-                      <p>Current organization logo:</p>
+                      <p>Using logo from {selectedOrganization.name}:</p>
                       <img src={selectedOrganization.image} alt={selectedOrganization.name} className="logo-preview" />
                       <p className="logo-note">
                         {editingId 
-                          ? "Upload a new image to replace the current logo, or leave empty to keep existing"
-                          : "Upload a new image to replace this logo for this certification only"
+                          ? "Upload a new image to replace this logo, or leave empty to keep using this organization's logo"
+                          : "This logo will be used for this certification. Upload a different image to override."
                         }
                       </p>
                     </div>
@@ -561,10 +572,16 @@ const AdminCertifications = () => {
                     type="file"
                     accept="image/*"
                     onChange={(e) => handleFileChange(e, 'image')}
+                    key={selectedOrganization ? `selected-${selectedOrganization.name}` : 'no-selection'}
                   />
                   {imageFile && (
                     <p className="form-hint">
-                      New image selected: {imageFile.name}
+                      New image selected: {imageFile.name} (This will override the organization logo)
+                    </p>
+                  )}
+                  {!imageFile && selectedOrganization && selectedOrganization.image && (
+                    <p className="form-hint">
+                      Currently using: {selectedOrganization.name}'s logo
                     </p>
                   )}
                 </div>

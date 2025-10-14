@@ -49,7 +49,10 @@ const Toast = ({ message, type, onClose, duration = 3000 }) => {
   };
 
   return (
-    <div className={`toast toast-${type} ${isVisible ? 'toast-show' : 'toast-hide'}`}>
+    <div 
+      className={`toast toast-${type} ${isVisible ? 'toast-show' : 'toast-hide'}`}
+      style={{ '--duration': `${duration}ms` }}
+    >
       <div className="toast-icon">
         {getIcon()}
       </div>
@@ -62,6 +65,7 @@ const Toast = ({ message, type, onClose, duration = 3000 }) => {
           setIsVisible(false);
           setTimeout(onClose, 300);
         }}
+        aria-label="Close notification"
       >
         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
           <line x1="18" y1="6" x2="6" y2="18"/>

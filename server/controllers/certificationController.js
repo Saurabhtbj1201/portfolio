@@ -70,16 +70,28 @@ export const createCertification = async (req, res) => {
         const file = req.files.certificate[0];
         const fileExtension = file.originalname.split('.').pop().toLowerCase();
         const isPdf = fileExtension === 'pdf';
-        const isDoc = ['doc', 'docx'].includes(fileExtension);
-        
+        const isImage = ['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(fileExtension);
+
         const certResult = await new Promise((resolve, reject) => {
+          const uploadOptions = {
+            folder: 'portfolio/certifications/certificates',
+            public_id: `certificate_${Date.now()}`,
+          };
+
+          // Set resource type and format based on file type
+          if (isPdf) {
+            uploadOptions.resource_type = 'raw';
+            uploadOptions.format = 'pdf';
+          } else if (isImage) {
+            uploadOptions.resource_type = 'image';
+            uploadOptions.format = fileExtension;
+          } else {
+            uploadOptions.resource_type = 'raw';
+            // Don't set format for other file types
+          }
+
           const uploadStream = cloudinary.uploader.upload_stream(
-            {
-              folder: 'portfolio/certifications/certificates',
-              resource_type: isPdf || isDoc ? 'raw' : 'image',
-              public_id: `certificate_${Date.now()}`,
-              ...(isPdf || isDoc ? {} : { format: fileExtension })
-            },
+            uploadOptions,
             (error, result) => {
               if (error) reject(error);
               else resolve(result);
@@ -87,6 +99,7 @@ export const createCertification = async (req, res) => {
           );
           uploadStream.end(file.buffer);
         });
+        
         certificate = certResult.secure_url;
         certificatePublicId = certResult.public_id;
       }
@@ -97,7 +110,8 @@ export const createCertification = async (req, res) => {
           const uploadStream = cloudinary.uploader.upload_stream(
             {
               folder: 'portfolio/certifications/images',
-              transformation: [{ width: 400, height: 300, crop: 'fill' }]
+              resource_type: 'image',
+              transformation: [{ width: 400, height: 400, crop: 'fill' }]
             },
             (error, result) => {
               if (error) reject(error);
@@ -172,32 +186,52 @@ export const updateCertification = async (req, res) => {
     if (req.files) {
       // Update certificate
       if (req.files.certificate) {
-        // Delete old certificate
+        // Delete old certificate with proper resource type detection
         if (certification.certificatePublicId) {
-          const isRawFile = certification.certificate && 
-            (certification.certificate.includes('.pdf') || 
-             certification.certificate.includes('.doc') || 
-             certification.certificate.includes('.docx'));
-          
-          await cloudinary.uploader.destroy(
-            certification.certificatePublicId, 
-            { resource_type: isRawFile ? 'raw' : 'image' }
-          );
+          try {
+            // Determine resource type from URL or public ID
+            const isRawFile = certification.certificate && 
+              (certification.certificate.includes('.pdf') || 
+               certification.certificatePublicId.includes('certificate_'));
+            
+            const deleteOptions = {
+              resource_type: isRawFile ? 'raw' : 'image'
+            };
+
+            console.log(`Deleting old certificate: ${certification.certificatePublicId}, resource_type: ${deleteOptions.resource_type}`);
+            
+            await cloudinary.uploader.destroy(certification.certificatePublicId, deleteOptions);
+          } catch (error) {
+            console.error('Error deleting old certificate:', error);
+            // Continue with upload even if deletion fails
+          }
         }
 
         const file = req.files.certificate[0];
         const fileExtension = file.originalname.split('.').pop().toLowerCase();
         const isPdf = fileExtension === 'pdf';
-        const isDoc = ['doc', 'docx'].includes(fileExtension);
+        const isImage = ['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(fileExtension);
 
         const certResult = await new Promise((resolve, reject) => {
+          const uploadOptions = {
+            folder: 'portfolio/certifications/certificates',
+            public_id: `certificate_${Date.now()}`,
+          };
+
+          // Set resource type and format based on file type
+          if (isPdf) {
+            uploadOptions.resource_type = 'raw';
+            uploadOptions.format = 'pdf';
+          } else if (isImage) {
+            uploadOptions.resource_type = 'image';
+            uploadOptions.format = fileExtension;
+          } else {
+            uploadOptions.resource_type = 'raw';
+            // Don't set format for other file types
+          }
+
           const uploadStream = cloudinary.uploader.upload_stream(
-            {
-              folder: 'portfolio/certifications/certificates',
-              resource_type: isPdf || isDoc ? 'raw' : 'image',
-              public_id: `certificate_${Date.now()}`,
-              ...(isPdf || isDoc ? {} : { format: fileExtension })
-            },
+            uploadOptions,
             (error, result) => {
               if (error) reject(error);
               else resolve(result);
@@ -205,22 +239,30 @@ export const updateCertification = async (req, res) => {
           );
           uploadStream.end(file.buffer);
         });
+        
         certification.certificate = certResult.secure_url;
         certification.certificatePublicId = certResult.public_id;
       }
 
       // Update image
       if (req.files.image) {
-        // Delete old image
+        // Delete old image only if it's owned by this certification
         if (certification.imagePublicId) {
-          await cloudinary.uploader.destroy(certification.imagePublicId);
+          try {
+            console.log(`Deleting old image: ${certification.imagePublicId}`);
+            await cloudinary.uploader.destroy(certification.imagePublicId, { resource_type: 'image' });
+          } catch (error) {
+            console.error('Error deleting old image:', error);
+            // Continue with upload even if deletion fails
+          }
         }
 
         const imageResult = await new Promise((resolve, reject) => {
           const uploadStream = cloudinary.uploader.upload_stream(
             {
               folder: 'portfolio/certifications/images',
-              transformation: [{ width: 400, height: 300, crop: 'fill' }]
+              resource_type: 'image',
+              transformation: [{ width: 400, height: 400, crop: 'fill' }]
             },
             (error, result) => {
               if (error) reject(error);
@@ -237,9 +279,12 @@ export const updateCertification = async (req, res) => {
     // Handle organization image reuse
     if (useExistingOrgImage === 'true' && existingOrgImageUrl && !req.files?.image) {
       // If using existing organization image and no new image uploaded
-      // Keep the existing image URL but clear the public ID since it's not owned by this certification
+      // Clear the public ID since we don't own this image
+      if (certification.imagePublicId) {
+        // Don't delete the image from Cloudinary since it might be used by other certifications
+        certification.imagePublicId = '';
+      }
       certification.image = existingOrgImageUrl;
-      // Don't update imagePublicId if we're reusing an image from another certification
     }
 
     // Update fields
@@ -283,26 +328,77 @@ export const deleteCertification = async (req, res) => {
     // Delete files from Cloudinary
     const deletePromises = [];
     
+    // Delete certificate file if exists
     if (certification.certificatePublicId) {
-      // Determine resource type based on file URL or extension
-      const isRawFile = certification.certificate && 
-        (certification.certificate.includes('.pdf') || 
-         certification.certificate.includes('.doc') || 
-         certification.certificate.includes('.docx'));
-      
-      deletePromises.push(
-        cloudinary.uploader.destroy(
-          certification.certificatePublicId, 
-          { resource_type: isRawFile ? 'raw' : 'image' }
-        )
-      );
+      try {
+        // Better detection of resource type
+        const isRawFile = certification.certificate && 
+          (certification.certificate.includes('.pdf') || 
+           certification.certificate.includes('/raw/') ||
+           certification.certificatePublicId.includes('certificate_') ||
+           !certification.certificate.includes('/image/'));
+        
+        const resourceType = isRawFile ? 'raw' : 'image';
+        
+        console.log(`Deleting certificate: ${certification.certificatePublicId}, resource_type: ${resourceType}`);
+        console.log(`Certificate URL: ${certification.certificate}`);
+        
+        deletePromises.push(
+          cloudinary.uploader.destroy(
+            certification.certificatePublicId, 
+            { resource_type: resourceType }
+          ).then(result => {
+            console.log(`Certificate deletion result:`, result);
+            return result;
+          }).catch(error => {
+            console.error(`Failed to delete certificate ${certification.certificatePublicId}:`, error);
+            // Continue with deletion even if Cloudinary fails
+            return { result: 'error', error };
+          })
+        );
+      } catch (error) {
+        console.error('Error preparing certificate deletion:', error);
+      }
     }
     
+    // Delete image file if exists and it's owned by this certification
     if (certification.imagePublicId) {
-      deletePromises.push(cloudinary.uploader.destroy(certification.imagePublicId));
+      try {
+        console.log(`Deleting image: ${certification.imagePublicId}`);
+        
+        deletePromises.push(
+          cloudinary.uploader.destroy(certification.imagePublicId, { resource_type: 'image' }).then(result => {
+            console.log(`Image deletion result:`, result);
+            return result;
+          }).catch(error => {
+            console.error(`Failed to delete image ${certification.imagePublicId}:`, error);
+            // Continue with deletion even if Cloudinary fails
+            return { result: 'error', error };
+          })
+        );
+      } catch (error) {
+        console.error('Error preparing image deletion:', error);
+      }
     }
 
-    await Promise.all(deletePromises);
+    // Wait for all deletions to complete (or fail)
+    if (deletePromises.length > 0) {
+      try {
+        const results = await Promise.allSettled(deletePromises);
+        results.forEach((result, index) => {
+          if (result.status === 'rejected') {
+            console.error(`Cloudinary deletion ${index} failed:`, result.reason);
+          } else {
+            console.log(`Cloudinary deletion ${index} successful:`, result.value);
+          }
+        });
+      } catch (error) {
+        console.error('Error during Cloudinary deletions:', error);
+        // Continue with database deletion even if Cloudinary operations fail
+      }
+    }
+
+    // Delete from database
     await Certification.findByIdAndDelete(req.params.id);
 
     res.json({ message: 'Certification deleted successfully' });

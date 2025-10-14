@@ -21,7 +21,6 @@ const Header = () => {
     { name: 'Certifications', href: '#certifications' },
     { name: 'Article', href: '#article' },
     { name: 'Awards', href: '#awards' },
-    { name: 'Testimonials', href: '#testimonials' },
     { name: 'Contact', href: '#contact' }
   ];
 
@@ -35,7 +34,6 @@ const Header = () => {
     { name: 'Certifications', href: '/admin/certifications' },
     { name: 'Articles', href: '/admin/articles' },
     { name: 'Awards', href: '/admin/awards' },
-    { name: 'Testimonials', href: '/admin/testimonials' },
     { name: 'Contact', href: '/admin/contact' }
   ];
 

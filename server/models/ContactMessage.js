@@ -1,7 +1,7 @@
 import mongoose from 'mongoose';
 
-const contactSchema = new mongoose.Schema({
-  name: {
+const contactMessageSchema = new mongoose.Schema({
+  fullName: {
     type: String,
     required: true,
     trim: true
@@ -17,33 +17,27 @@ const contactSchema = new mongoose.Schema({
     required: true,
     trim: true
   },
-  purpose: {
+  reason: {
     type: String,
-    enum: ['hire', 'project', 'connect', 'other'],
-    required: true
+    required: true,
+    enum: ['hire me', 'build projects', 'general connection', 'others']
   },
   message: {
     type: String,
     required: true,
     trim: true
   },
-  status: {
-    type: String,
-    enum: ['new', 'read', 'replied'],
-    default: 'new'
-  },
   isRead: {
     type: Boolean,
     default: false
-  },
-  adminNotes: {
-    type: String,
-    default: ''
   }
 }, {
   timestamps: true
 });
 
-const Contact = mongoose.model('Contact', contactSchema);
+// Index for faster queries
+contactMessageSchema.index({ isRead: 1, createdAt: -1 });
 
-export default Contact;
+const ContactMessage = mongoose.model('ContactMessage', contactMessageSchema);
+
+export default ContactMessage;

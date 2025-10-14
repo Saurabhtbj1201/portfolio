@@ -16,19 +16,19 @@ export const useToast = () => {
     setToasts(prev => prev.filter(toast => toast.id !== id));
   }, []);
 
-  const showSuccess = useCallback((message, duration) => {
+  const showSuccess = useCallback((message, duration = 3000) => {
     return addToast(message, 'success', duration);
   }, [addToast]);
 
-  const showError = useCallback((message, duration) => {
+  const showError = useCallback((message, duration = 5000) => {
     return addToast(message, 'error', duration);
   }, [addToast]);
 
-  const showWarning = useCallback((message, duration) => {
+  const showWarning = useCallback((message, duration = 4000) => {
     return addToast(message, 'warning', duration);
   }, [addToast]);
 
-  const showInfo = useCallback((message, duration) => {
+  const showInfo = useCallback((message, duration = 3000) => {
     return addToast(message, 'info', duration);
   }, [addToast]);
 

@@ -5,17 +5,15 @@ import ToastContainer from '../../components/ToastContainer';
 import { useToast } from '../../hooks/useToast';
 import '../../styles/AdminContact.css';
 
-const AdminContact = () => {
-  const [contacts, setContacts] = useState([]);
+const ContactAdmin = () => {
+  const [activeTab, setActiveTab] = useState('feedback');
+  const [feedback, setFeedback] = useState([]);
+  const [contactMessages, setContactMessages] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [selectedContact, setSelectedContact] = useState(null);
-  const [filter, setFilter] = useState('all');
-  const [search, setSearch] = useState('');
-  const [stats, setStats] = useState({
-    total: 0,
-    unread: 0,
-    thisMonth: 0
-  });
+  const [feedbackFilter, setFeedbackFilter] = useState('all');
+  const [messageFilter, setMessageFilter] = useState('all');
+  const [editingFeedback, setEditingFeedback] = useState(null);
+  const [showEditModal, setShowEditModal] = useState(false);
 
   // Toast notifications
   const { toasts, removeToast, showSuccess, showError } = useToast();
@@ -30,125 +28,184 @@ const AdminContact = () => {
   });
 
   useEffect(() => {
-    fetchContacts();
-    fetchStats();
-  }, [filter, search]);
+    if (activeTab === 'feedback') {
+      fetchFeedback();
+    } else {
+      fetchContactMessages();
+    }
+  }, [activeTab, feedbackFilter, messageFilter]);
 
-  const fetchContacts = async () => {
+  const fetchFeedback = async () => {
     try {
-      const token = localStorage.getItem('token');
-      const response = await axios.get(`${import.meta.env.VITE_API_URL}/contact`, {
-        headers: { 'Authorization': `Bearer ${token}` },
-        params: { status: filter, search }
+      setLoading(true);
+      const response = await axios.get(`${import.meta.env.VITE_API_URL}/feedback/admin`, {
+        headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` },
+        params: { status: feedbackFilter !== 'all' ? feedbackFilter : undefined }
       });
-      setContacts(response.data.contacts);
+      setFeedback(response.data);
     } catch (error) {
-      showError('Failed to fetch contacts');
+      showError('Failed to fetch feedback');
     } finally {
       setLoading(false);
     }
   };
 
-  const fetchStats = async () => {
+  const fetchContactMessages = async () => {
     try {
-      const token = localStorage.getItem('token');
-      const response = await axios.get(`${import.meta.env.VITE_API_URL}/contact/stats`, {
-        headers: { 'Authorization': `Bearer ${token}` }
+      setLoading(true);
+      const response = await axios.get(`${import.meta.env.VITE_API_URL}/contact-messages/admin`, {
+        headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` },
+        params: { status: messageFilter !== 'all' ? messageFilter : undefined }
       });
-      setStats(response.data);
+      setContactMessages(response.data);
     } catch (error) {
-      console.error('Failed to fetch stats:', error);
+      showError('Failed to fetch contact messages');
+    } finally {
+      setLoading(false);
     }
   };
 
-  const handleContactClick = async (contact) => {
-    setSelectedContact(contact);
-    
-    // Mark as read if not already read
-    if (!contact.isRead) {
-      try {
-        const token = localStorage.getItem('token');
-        await axios.put(
-          `${import.meta.env.VITE_API_URL}/contact/${contact._id}`,
-          { isRead: true },
-          { headers: { 'Authorization': `Bearer ${token}` } }
-        );
-        
-        // Update local state
-        setContacts(contacts.map(c => 
-          c._id === contact._id ? { ...c, isRead: true } : c
-        ));
-        
-        // Update stats
-        setStats(prev => ({ ...prev, unread: prev.unread - 1 }));
-      } catch (error) {
-        console.error('Failed to mark as read:', error);
-      }
-    }
-  };
-
-  const handleUpdateStatus = async (contactId, status) => {
+  const handleToggleApproval = async (feedbackId) => {
     try {
       const token = localStorage.getItem('token');
-      await axios.put(
-        `${import.meta.env.VITE_API_URL}/contact/${contactId}`,
-        { status },
+      const response = await axios.put(
+        `${import.meta.env.VITE_API_URL}/feedback/${feedbackId}/toggle-approval`,
+        {},
         { headers: { 'Authorization': `Bearer ${token}` } }
       );
       
-      showSuccess('Status updated successfully');
-      fetchContacts();
-      
-      // Update selected contact if it's the same one
-      if (selectedContact && selectedContact._id === contactId) {
-        setSelectedContact({ ...selectedContact, status });
-      }
+      showSuccess(response.data.message);
+      fetchFeedback();
     } catch (error) {
-      showError('Failed to update status');
+      showError('Failed to update approval status');
     }
   };
 
-  const handleDelete = (contact) => {
+  const handleDeleteFeedback = (feedback) => {
     setConfirmDialog({
       isOpen: true,
-      title: 'Delete Contact',
-      message: `Are you sure you want to delete the message from "${contact.name}"? This action cannot be undone.`,
-      onConfirm: () => confirmDelete(contact._id),
+      title: 'Delete Feedback',
+      message: `Are you sure you want to delete the feedback from "${feedback.fullName}"? This action cannot be undone.`,
+      onConfirm: () => confirmDeleteFeedback(feedback._id),
       type: 'danger'
     });
   };
 
-  const confirmDelete = async (contactId) => {
+  const confirmDeleteFeedback = async (feedbackId) => {
     try {
       const token = localStorage.getItem('token');
-      await axios.delete(
-        `${import.meta.env.VITE_API_URL}/contact/${contactId}`,
-        { headers: { 'Authorization': `Bearer ${token}` } }
-      );
+      await axios.delete(`${import.meta.env.VITE_API_URL}/feedback/${feedbackId}`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
       
-      showSuccess('Contact deleted successfully');
-      fetchContacts();
-      fetchStats();
-      
-      // Close detail view if deleted contact was selected
-      if (selectedContact && selectedContact._id === contactId) {
-        setSelectedContact(null);
-      }
+      showSuccess('Feedback deleted successfully');
+      fetchFeedback();
     } catch (error) {
-      showError('Failed to delete contact');
+      showError('Failed to delete feedback');
     } finally {
       setConfirmDialog({ ...confirmDialog, isOpen: false });
     }
   };
 
-  const getPurposeLabel = (purpose) => {
-    const labels = {
-      hire: 'Hire Me',
-      project: 'Project Collaboration',
-      connect: 'General Connection',
-      other: 'Other'
-    };
-    return labels[purpose] || purpose;
+  const handleEditFeedback = (feedback) => {
+    setEditingFeedback({
+      ...feedback,
+      profileImage: null // Don't include the existing image in form
+    });
+    setShowEditModal(true);
+  };
+
+  const handleUpdateFeedback = async (e) => {
+    e.preventDefault();
+    
+    try {
+      const formData = new FormData();
+      Object.keys(editingFeedback).forEach(key => {
+        if (key === 'profileImage' && editingFeedback[key]) {
+          formData.append(key, editingFeedback[key]);
+        } else if (key !== 'profileImage' && key !== '_id' && key !== 'createdAt' && key !== 'updatedAt' && key !== '__v') {
+          formData.append(key, editingFeedback[key]);
+        }
+      });
+
+      const token = localStorage.getItem('token');
+      await axios.put(
+        `${import.meta.env.VITE_API_URL}/feedback/${editingFeedback._id}`,
+        formData,
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'multipart/form-data'
+          }
+        }
+      );
+
+      showSuccess('Feedback updated successfully');
+      setShowEditModal(false);
+      setEditingFeedback(null);
+      fetchFeedback();
+    } catch (error) {
+      showError('Failed to update feedback');
+    }
+  };
+
+  const handleDeleteMessage = (message) => {
+    setConfirmDialog({
+      isOpen: true,
+      title: 'Delete Message',
+      message: `Are you sure you want to delete the message from "${message.fullName}"? This action cannot be undone.`,
+      onConfirm: () => confirmDeleteMessage(message._id),
+      type: 'danger'
+    });
+  };
+
+  const confirmDeleteMessage = async (messageId) => {
+    try {
+      const token = localStorage.getItem('token');
+      await axios.delete(`${import.meta.env.VITE_API_URL}/contact-messages/${messageId}`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      
+      showSuccess('Message deleted successfully');
+      fetchContactMessages();
+    } catch (error) {
+      showError('Failed to delete message');
+    } finally {
+      setConfirmDialog({ ...confirmDialog, isOpen: false });
+    }
+  };
+
+  const markAsRead = async (messageId) => {
+    try {
+      const token = localStorage.getItem('token');
+      await axios.put(
+        `${import.meta.env.VITE_API_URL}/contact-messages/${messageId}/read`,
+        {},
+        { headers: { 'Authorization': `Bearer ${token}` } }
+      );
+      
+      fetchContactMessages();
+    } catch (error) {
+      showError('Failed to mark as read');
+    }
+  };
+
+  const renderStars = (rating) => {
+    return Array.from({ length: 5 }, (_, index) => (
+      <svg
+        key={index}
+        className={`star ${index < rating ? 'filled' : ''}`}
+        xmlns="http://www.w3.org/2000/svg"
+        width="16"
+        height="16"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+      >
+        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+      </svg>
+    ));
   };
 
   const formatDate = (dateString) => {
@@ -161,23 +218,10 @@ const AdminContact = () => {
     });
   };
 
-  if (loading) {
-    return (
-      <div className="admin-contact-page">
-        <div className="loading-state">
-          <div className="spinner"></div>
-          <p>Loading contacts...</p>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="admin-contact-page">
-      {/* Toast Container */}
       <ToastContainer toasts={toasts} removeToast={removeToast} />
       
-      {/* Confirmation Dialog */}
       <ConfirmDialog
         isOpen={confirmDialog.isOpen}
         onClose={() => setConfirmDialog({ ...confirmDialog, isOpen: false })}
@@ -189,251 +233,352 @@ const AdminContact = () => {
 
       <div className="page-header">
         <h1>Contact Management</h1>
-        <p className="page-subtitle">Manage contact form submissions and inquiries</p>
+        <p className="page-subtitle">Manage feedback, reviews, and contact messages</p>
       </div>
 
-      {/* Stats Cards */}
-      <div className="stats-grid">
-        <div className="stat-card">
-          <div className="stat-icon total">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
-              <polyline points="22,6 12,13 2,6"/>
-            </svg>
-          </div>
-          <div className="stat-info">
-            <h3>{stats.total}</h3>
-            <p>Total Contacts</p>
-          </div>
-        </div>
-
-        <div className="stat-card">
-          <div className="stat-icon unread">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/>
-              <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
-            </svg>
-          </div>
-          <div className="stat-info">
-            <h3>{stats.unread}</h3>
-            <p>Unread Messages</p>
-          </div>
-        </div>
-
-        <div className="stat-card">
-          <div className="stat-icon month">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
-              <line x1="16" y1="2" x2="16" y2="6"/>
-              <line x1="8" y1="2" x2="8" y2="6"/>
-              <line x1="3" y1="10" x2="21" y2="10"/>
-            </svg>
-          </div>
-          <div className="stat-info">
-            <h3>{stats.thisMonth}</h3>
-            <p>This Month</p>
-          </div>
-        </div>
+      <div className="contact-tabs">
+        <button 
+          className={`tab-btn ${activeTab === 'feedback' ? 'active' : ''}`}
+          onClick={() => setActiveTab('feedback')}
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+          </svg>
+          Feedback & Reviews ({feedback.length})
+        </button>
+        <button 
+          className={`tab-btn ${activeTab === 'messages' ? 'active' : ''}`}
+          onClick={() => setActiveTab('messages')}
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+            <polyline points="22,6 12,13 2,6"/>
+          </svg>
+          Get In Touch ({contactMessages.length})
+        </button>
       </div>
 
-      <div className="contact-content">
-        {/* Contact List */}
-        <div className="contact-list-section">
-          {/* Filters and Search */}
-          <div className="contact-filters">
-            <div className="filter-tabs">
-              <button 
-                className={`filter-tab ${filter === 'all' ? 'active' : ''}`}
-                onClick={() => setFilter('all')}
-              >
-                All
-              </button>
-              <button 
-                className={`filter-tab ${filter === 'new' ? 'active' : ''}`}
-                onClick={() => setFilter('new')}
-              >
-                New
-              </button>
-              <button 
-                className={`filter-tab ${filter === 'read' ? 'active' : ''}`}
-                onClick={() => setFilter('read')}
-              >
-                Read
-              </button>
-              <button 
-                className={`filter-tab ${filter === 'replied' ? 'active' : ''}`}
-                onClick={() => setFilter('replied')}
-              >
-                Replied
-              </button>
+      {/* Feedback Tab */}
+      {activeTab === 'feedback' && (
+        <div className="tab-content">
+          <div className="filter-bar">
+            <select
+              value={feedbackFilter}
+              onChange={(e) => setFeedbackFilter(e.target.value)}
+              className="filter-select"
+            >
+              <option value="all">All Feedback</option>
+              <option value="approved">Approved</option>
+              <option value="pending">Pending Approval</option>
+            </select>
+          </div>
+
+          {loading ? (
+            <div className="loading-state">
+              <div className="spinner"></div>
+              <p>Loading feedback...</p>
             </div>
-
-            <div className="search-box">
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <circle cx="11" cy="11" r="8"/>
-                <path d="m21 21-4.35-4.35"/>
+          ) : feedback.length === 0 ? (
+            <div className="empty-state">
+              <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
               </svg>
-              <input
-                type="text"
-                placeholder="Search contacts..."
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-              />
-            </div>
-          </div>
-
-          {/* Contact List */}
-          <div className="contact-list">
-            {contacts.length === 0 ? (
-              <div className="empty-state">
-                <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
-                  <polyline points="22,6 12,13 2,6"/>
-                </svg>
-                <p>No contacts found</p>
-              </div>
-            ) : (
-              contacts.map((contact) => (
-                <div
-                  key={contact._id}
-                  className={`contact-item ${!contact.isRead ? 'unread' : ''} ${selectedContact?._id === contact._id ? 'selected' : ''}`}
-                  onClick={() => handleContactClick(contact)}
-                >
-                  <div className="contact-item-header">
-                    <h3 className="contact-name">{contact.name}</h3>
-                    <span className="contact-time">{formatDate(contact.createdAt)}</span>
-                  </div>
-                  
-                  <div className="contact-item-info">
-                    <span className="contact-email">{contact.email}</span>
-                    <span className={`purpose-badge ${contact.purpose}`}>
-                      {getPurposeLabel(contact.purpose)}
-                    </span>
-                  </div>
-                  
-                  <p className="contact-preview">
-                    {contact.message.substring(0, 100)}
-                    {contact.message.length > 100 ? '...' : ''}
-                  </p>
-                  
-                  <div className="contact-item-footer">
-                    <span className={`status-indicator ${contact.status}`}>
-                      {contact.status}
-                    </span>
-                    {!contact.isRead && <span className="unread-dot"></span>}
-                  </div>
-                </div>
-              ))
-            )}
-          </div>
-        </div>
-
-        {/* Contact Detail */}
-        <div className="contact-detail-section">
-          {selectedContact ? (
-            <div className="contact-detail">
-              <div className="detail-header">
-                <div className="contact-avatar">
-                  {selectedContact.name.charAt(0).toUpperCase()}
-                </div>
-                <div className="contact-basic-info">
-                  <h2>{selectedContact.name}</h2>
-                  <p>{selectedContact.email}</p>
-                  <p>{selectedContact.phone}</p>
-                </div>
-                <div className="contact-actions">
-                  <select
-                    value={selectedContact.status}
-                    onChange={(e) => handleUpdateStatus(selectedContact._id, e.target.value)}
-                    className="status-select"
-                  >
-                    <option value="new">New</option>
-                    <option value="read">Read</option>
-                    <option value="replied">Replied</option>
-                  </select>
-                  <button
-                    onClick={() => handleDelete(selectedContact)}
-                    className="btn-delete"
-                    title="Delete contact"
-                  >
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <polyline points="3 6 5 6 21 6"/>
-                      <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
-                    </svg>
-                  </button>
-                </div>
-              </div>
-
-              <div className="detail-body">
-                <div className="detail-section">
-                  <h3>Message Details</h3>
-                  <div className="detail-grid">
-                    <div className="detail-item">
-                      <label>Purpose:</label>
-                      <span className={`purpose-badge ${selectedContact.purpose}`}>
-                        {getPurposeLabel(selectedContact.purpose)}
-                      </span>
-                    </div>
-                    <div className="detail-item">
-                      <label>Submitted:</label>
-                      <span>{formatDate(selectedContact.createdAt)}</span>
-                    </div>
-                    <div className="detail-item">
-                      <label>Status:</label>
-                      <span className={`status-badge ${selectedContact.status}`}>
-                        {selectedContact.status}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="detail-section">
-                  <h3>Message</h3>
-                  <div className="message-content">
-                    {selectedContact.message}
-                  </div>
-                </div>
-
-                <div className="detail-section">
-                  <h3>Quick Actions</h3>
-                  <div className="quick-actions">
-                    <a
-                      href={`mailto:${selectedContact.email}?subject=Re: Your inquiry&body=Hi ${selectedContact.name},%0D%0A%0D%0AThank you for reaching out!%0D%0A%0D%0ABest regards,%0D%0ASaurabh Kumar`}
-                      className="action-btn primary"
-                    >
-                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                        <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
-                        <polyline points="22,6 12,13 2,6"/>
-                      </svg>
-                      Reply via Email
-                    </a>
-                    <a
-                      href={`tel:${selectedContact.phone}`}
-                      className="action-btn secondary"
-                    >
-                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                        <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
-                      </svg>
-                      Call
-                    </a>
-                  </div>
-                </div>
-              </div>
+              <h3>No feedback found</h3>
+              <p>No feedback matches your current filter</p>
             </div>
           ) : (
-            <div className="no-contact-selected">
+            <div className="feedback-grid">
+              {feedback.map((item) => (
+                <div key={item._id} className={`feedback-card ${!item.isApproved ? 'pending' : ''}`}>
+                  <div className="feedback-header">
+                    <div className="feedback-user">
+                      <div className="user-avatar">
+                        {item.profileImage ? (
+                          <img src={item.profileImage} alt={item.fullName} />
+                        ) : (
+                          <div className="avatar-placeholder">
+                            {item.fullName.charAt(0).toUpperCase()}
+                          </div>
+                        )}
+                      </div>
+                      <div className="user-info">
+                        <h4>{item.fullName}</h4>
+                        <p>{item.email}</p>
+                        <div className="rating">
+                          {renderStars(item.rating)}
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div className="feedback-actions">
+                      <button
+                        onClick={() => handleToggleApproval(item._id)}
+                        className={`approval-btn ${item.isApproved ? 'approved' : 'pending'}`}
+                        title={item.isApproved ? 'Remove approval' : 'Approve feedback'}
+                      >
+                        {item.isApproved ? (
+                          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <polyline points="20 6 9 17 4 12"/>
+                          </svg>
+                        ) : (
+                          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <circle cx="12" cy="12" r="10"/>
+                            <line x1="12" y1="8" x2="12" y2="12"/>
+                            <line x1="12" y1="16" x2="12.01" y2="16"/>
+                          </svg>
+                        )}
+                      </button>
+                      
+                      <button
+                        onClick={() => handleEditFeedback(item)}
+                        className="edit-btn"
+                        title="Edit feedback"
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                          <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                        </svg>
+                      </button>
+                      
+                      <button
+                        onClick={() => handleDeleteFeedback(item)}
+                        className="delete-btn"
+                        title="Delete feedback"
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <polyline points="3 6 5 6 21 6"/>
+                          <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                        </svg>
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="feedback-content">
+                    <p className="feedback-text">"{item.feedback}"</p>
+                    
+                    {item.websiteLink && (
+                      <a 
+                        href={item.websiteLink} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="website-link"
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+                          <polyline points="15 3 21 3 21 9"/>
+                          <line x1="10" y1="14" x2="21" y2="3"/>
+                        </svg>
+                        Visit Website
+                      </a>
+                    )}
+                    
+                    <div className="feedback-meta">
+                      <span className="date">{formatDate(item.createdAt)}</span>
+                      <span className={`status ${item.isApproved ? 'approved' : 'pending'}`}>
+                        {item.isApproved ? 'Approved' : 'Pending'}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Contact Messages Tab */}
+      {activeTab === 'messages' && (
+        <div className="tab-content">
+          <div className="filter-bar">
+            <select
+              value={messageFilter}
+              onChange={(e) => setMessageFilter(e.target.value)}
+              className="filter-select"
+            >
+              <option value="all">All Messages</option>
+              <option value="unread">Unread</option>
+              <option value="read">Read</option>
+            </select>
+          </div>
+
+          {loading ? (
+            <div className="loading-state">
+              <div className="spinner"></div>
+              <p>Loading messages...</p>
+            </div>
+          ) : contactMessages.length === 0 ? (
+            <div className="empty-state">
               <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
                 <polyline points="22,6 12,13 2,6"/>
               </svg>
-              <h3>Select a contact</h3>
-              <p>Choose a contact from the list to view details</p>
+              <h3>No messages found</h3>
+              <p>No messages match your current filter</p>
+            </div>
+          ) : (
+            <div className="messages-grid">
+              {contactMessages.map((message) => (
+                <div 
+                  key={message._id} 
+                  className={`message-card ${!message.isRead ? 'unread' : ''}`}
+                  onClick={() => !message.isRead && markAsRead(message._id)}
+                >
+                  <div className="message-header">
+                    <div className="message-user">
+                      <div className="user-avatar">
+                        {message.fullName.charAt(0).toUpperCase()}
+                      </div>
+                      <div className="user-info">
+                        <h4>{message.fullName}</h4>
+                        <p>{message.email}</p>
+                        <p>{message.phone}</p>
+                      </div>
+                    </div>
+                    
+                    <div className="message-actions">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDeleteMessage(message);
+                        }}
+                        className="delete-btn"
+                        title="Delete message"
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <polyline points="3 6 5 6 21 6"/>
+                          <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                        </svg>
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="message-content">
+                    <div className="reason-badge">
+                      <span className={`reason ${message.reason.replace(' ', '-')}`}>
+                        {message.reason}
+                      </span>
+                    </div>
+                    
+                    <p className="message-text">{message.message}</p>
+                    
+                    <div className="message-meta">
+                      <span className="date">{formatDate(message.createdAt)}</span>
+                      {!message.isRead && <span className="unread-indicator">New</span>}
+                    </div>
+                  </div>
+                </div>
+              ))}
             </div>
           )}
         </div>
-      </div>
+      )}
+
+      {/* Edit Feedback Modal */}
+      {showEditModal && editingFeedback && (
+        <div className="modal-overlay" onClick={() => setShowEditModal(false)}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h2>Edit Feedback</h2>
+              <button 
+                className="close-btn"
+                onClick={() => setShowEditModal(false)}
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <line x1="18" y1="6" x2="6" y2="18"/>
+                  <line x1="6" y1="6" x2="18" y2="18"/>
+                </svg>
+              </button>
+            </div>
+
+            <form onSubmit={handleUpdateFeedback} className="edit-form">
+              <div className="form-grid">
+                <div className="form-group">
+                  <label>Full Name</label>
+                  <input
+                    type="text"
+                    value={editingFeedback.fullName}
+                    onChange={(e) => setEditingFeedback({...editingFeedback, fullName: e.target.value})}
+                    required
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label>Email</label>
+                  <input
+                    type="email"
+                    value={editingFeedback.email}
+                    onChange={(e) => setEditingFeedback({...editingFeedback, email: e.target.value})}
+                    required
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label>Rating</label>
+                  <select
+                    value={editingFeedback.rating}
+                    onChange={(e) => setEditingFeedback({...editingFeedback, rating: parseInt(e.target.value)})}
+                    required
+                  >
+                    {[1, 2, 3, 4, 5].map(num => (
+                      <option key={num} value={num}>{num} Star{num > 1 ? 's' : ''}</option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="form-group">
+                  <label>Website Link</label>
+                  <input
+                    type="url"
+                    value={editingFeedback.websiteLink}
+                    onChange={(e) => setEditingFeedback({...editingFeedback, websiteLink: e.target.value})}
+                  />
+                </div>
+              </div>
+
+              <div className="form-group">
+                <label>Update Profile Image</label>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => setEditingFeedback({...editingFeedback, profileImage: e.target.files[0]})}
+                />
+              </div>
+
+              <div className="form-group">
+                <label>Feedback</label>
+                <textarea
+                  value={editingFeedback.feedback}
+                  onChange={(e) => setEditingFeedback({...editingFeedback, feedback: e.target.value})}
+                  required
+                  rows="4"
+                />
+              </div>
+
+              <div className="form-group">
+                <label className="checkbox-label">
+                  <input
+                    type="checkbox"
+                    checked={editingFeedback.isApproved}
+                    onChange={(e) => setEditingFeedback({...editingFeedback, isApproved: e.target.checked})}
+                  />
+                  Approved for display
+                </label>
+              </div>
+
+              <div className="form-actions">
+                <button type="button" onClick={() => setShowEditModal(false)} className="cancel-btn">
+                  Cancel
+                </button>
+                <button type="submit" className="save-btn">
+                  Update Feedback
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
 
-export default AdminContact;
+export default ContactAdmin;
