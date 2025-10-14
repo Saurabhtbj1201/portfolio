@@ -7,6 +7,7 @@ import Contact from '../components/Contact';
 import Projects from '../components/Projects';
 import Experience from '../components/Experience';
 import Awards from '../components/Awards';
+import Certifications from '../components/Certifications';
 import '../styles/Home.css';
 
 const Home = () => {
@@ -322,6 +323,9 @@ const Home = () => {
 
       {/* Education Section */}
       <Education />
+
+      {/* Certifications Section */}
+      <Certifications />
 
       <section id="article" style={{ padding: '4rem 2rem', minHeight: '50vh' }}>
         <h2 style={{ fontSize: '2.5rem', marginBottom: '1rem' }}>Articles</h2>
