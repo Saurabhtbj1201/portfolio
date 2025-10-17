@@ -576,7 +576,7 @@ const Profile = () => {
           <div className="profile-card">
             <h2>Change Password</h2>
             <form onSubmit={handlePasswordChange} className="password-form">
-              <div className="form-group">
+              <div className="form-groupa">
                 <label>Current Password</label>
                 <input
                   type="password"
@@ -586,7 +586,7 @@ const Profile = () => {
                   className="form-input"
                 />
               </div>
-              <div className="form-group">
+              <div className="form-groupa">
                 <label>New Password</label>
                 <input
                   type="password"
@@ -596,7 +596,7 @@ const Profile = () => {
                   className="form-input"
                 />
               </div>
-              <div className="form-group">
+              <div className="form-groupa">
                 <label>Confirm New Password</label>
                 <input
                   type="password"
@@ -620,7 +620,7 @@ const Profile = () => {
               <h2>Add New Admin</h2>
               <form onSubmit={handleAddAdmin} className="admin-form">
                 <div className="form-row">
-                  <div className="form-group">
+                  <div className="form-groupa">
                     <label>Username</label>
                     <input
                       type="text"
@@ -630,7 +630,7 @@ const Profile = () => {
                       className="form-input"
                     />
                   </div>
-                  <div className="form-group">
+                  <div className="form-groupa">
                     <label>Email</label>
                     <input
                       type="email"
@@ -642,7 +642,7 @@ const Profile = () => {
                   </div>
                 </div>
                 <div className="form-row">
-                  <div className="form-group">
+                  <div className="form-groupa">
                     <label>Password</label>
                     <input
                       type="password"
@@ -652,7 +652,7 @@ const Profile = () => {
                       className="form-input"
                     />
                   </div>
-                  <div className="form-group">
+                  <div className="form-groupa">
                     <label>Confirm Password</label>
                     <input
                       type="password"
@@ -870,7 +870,7 @@ const Profile = () => {
             <h2>About Section Management</h2>
             
             {/* About Image Upload Section */}
-            <div className="form-group">
+            <div className="form-groupa">
               <label>About Image</label>
               <div className="upload-section">
                 {aboutData.aboutImage ? (
@@ -930,7 +930,7 @@ const Profile = () => {
             </div>
 
             <form onSubmit={handleUpdateAbout} className="admin-form">
-              <div className="form-group">
+              <div className="form-groupa">
                 <label>Title</label>
                 <input
                   type="text"
@@ -941,7 +941,7 @@ const Profile = () => {
                 />
               </div>
 
-              <div className="form-group">
+              <div className="form-groupa">
                 <label>Tags</label>
                 <div className="tags-container">
                   <div className="tags-list">
@@ -964,7 +964,7 @@ const Profile = () => {
                 </div>
               </div>
 
-              <div className="form-group">
+              <div className="form-groupa">
                 <label>Description</label>
                 <textarea
                   value={aboutData.description}
@@ -976,7 +976,7 @@ const Profile = () => {
               </div>
 
               <div className="form-row">
-                <div className="form-group">
+                <div className="form-groupa">
                   <label>Email</label>
                   <input
                     type="email"
@@ -986,7 +986,7 @@ const Profile = () => {
                     className="form-input"
                   />
                 </div>
-                <div className="form-group">
+                <div className="form-groupa">
                   <label>Location</label>
                   <input
                     type="text"

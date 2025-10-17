@@ -126,7 +126,7 @@
 .admin-form {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 0.5rem;
 }
 
 .form-row {
@@ -135,13 +135,13 @@
   gap: 1.5rem;
 }
 
-.form-group {
+.form-groupa {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
 }
 
-.form-group label {
+.form-groupa label {
   font-weight: 600;
   color: var(--text-color);
   font-size: 0.9rem;

@@ -11,6 +11,7 @@ import AdminContact from './pages/admin/Contact';
 import AdminExperience from './pages/admin/Experience';
 import AdminAwards from './pages/admin/Awards';
 import AdminCertifications from './pages/admin/Certifications';
+import AdminArticles from './pages/admin/Articles';
 import PrivateRoute from './components/PrivateRoute';
 import Header from './components/Header';
 import Footer from './components/Footer';
@@ -109,6 +110,14 @@ function App() {
                   element={
                     <PrivateRoute>
                       <AdminCertifications />
+                    </PrivateRoute>
+                  }
+                />
+                <Route
+                  path="/admin/articles"
+                  element={
+                    <PrivateRoute>
+                      <AdminArticles />
                     </PrivateRoute>
                   }
                 />

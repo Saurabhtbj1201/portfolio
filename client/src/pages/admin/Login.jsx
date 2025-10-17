@@ -24,28 +24,11 @@ const Login = () => {
     }
   };
 
-  const handleDemoLogin = () => {
-    setFormData({ email: 'test@test.com', password: '123456' });
-  };
-
   return (
     <div className="login-container">
       <div className="login-card">
         <h2 className="login-title">Admin Login</h2>
         <p className="login-subtitle">Access your dashboard</p>
-        
-        <div className="demo-credentials">
-          <p className="demo-title">Demo Credentials:</p>
-          <p className="demo-info">Email: <strong>test@test.com</strong></p>
-          <p className="demo-info">Password: <strong>1234</strong></p>
-          <button 
-            type="button" 
-            className="demo-button"
-            onClick={handleDemoLogin}
-          >
-            Use Demo Login
-          </button>
-        </div>
 
         {error && <div className="error-message">{error}</div>}
         

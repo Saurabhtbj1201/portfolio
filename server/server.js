@@ -18,6 +18,7 @@ import awardRoutes from './routes/awardRoutes.js';
 import certificationRoutes from './routes/certificationRoutes.js';
 import feedbackRoutes from './routes/feedbackRoutes.js';
 import contactMessageRoutes from './routes/contactMessageRoutes.js';
+import articleRoutes from './routes/articleRoutes.js';
 
 // Connect to database
 connectDB();
@@ -47,6 +48,7 @@ app.use('/api/awards', awardRoutes);
 app.use('/api/certifications', certificationRoutes);
 app.use('/api/feedback', feedbackRoutes);
 app.use('/api/contact-messages', contactMessageRoutes);
+app.use('/api/articles', articleRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {
