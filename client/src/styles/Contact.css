@@ -138,14 +138,16 @@
 
 .testimonial-feedback {
   font-size: 0.95rem;
-  color: #64748b;
+  color: #000000c4;
   line-height: 1.5;
   margin-bottom: 1rem;
   font-style: italic;
-  display: -webkit-box;
-  -webkit-line-clamp: 3;
-  -webkit-box-orient: vertical;
   overflow: hidden;
+}
+
+/* Dark mode styles */
+:root.dark .testimonial-feedback {
+  color: #ffffffcc;
 }
 
 .testimonial-link {
