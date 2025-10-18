@@ -89,6 +89,179 @@
   gap: 1.5rem;
 }
 
+.profile-info-container {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 2rem;
+  align-items: start;
+}
+
+.current-logo-display {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.5rem;
+  background: rgba(102, 126, 234, 0.05);
+  border-radius: 12px;
+  border: 2px solid rgba(102, 126, 234, 0.2);
+  min-width: 220px;
+  max-width: 250px;
+}
+
+.current-logo-display h3 {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-color);
+  margin: 0;
+  text-align: center;
+}
+
+.current-logo-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  width: 100%;
+}
+
+.current-logo-preview {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.75rem;
+  background: white;
+  border-radius: 8px;
+  border: 2px solid rgba(102, 126, 234, 0.3);
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.1);
+  width: 100%;
+  min-height: 60px;
+}
+
+.current-logo-image {
+  max-width: 120px;
+  max-height: 50px;
+  object-fit: contain;
+}
+
+.no-logo-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  width: 100%;
+}
+
+.no-logo-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1.5rem;
+  background: rgba(148, 163, 184, 0.1);
+  border-radius: 8px;
+  border: 2px dashed rgba(148, 163, 184, 0.3);
+  color: #94a3b8;
+  width: 100%;
+}
+
+.no-logo-placeholder svg {
+  opacity: 0.6;
+}
+
+.no-logo-placeholder p {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #64748b;
+}
+
+.logo-status {
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 0.25rem 0.75rem;
+  border-radius: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.logo-status.active {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.logo-status.inactive {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.logo-quick-actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.quick-action-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.5rem 0.75rem;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-decoration: none;
+}
+
+.quick-action-btn.edit {
+  background: #3b82f6;
+  color: white;
+}
+
+.quick-action-btn.edit:hover:not(.uploading) {
+  background: #2563eb;
+  transform: translateY(-1px);
+}
+
+.quick-action-btn.delete {
+  background: #ef4444;
+  color: white;
+}
+
+.quick-action-btn.delete:hover {
+  background: #dc2626;
+  transform: translateY(-1px);
+}
+
+.quick-action-btn.upload {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: white;
+}
+
+.quick-action-btn.upload:hover:not(.uploading) {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+}
+
+.quick-action-btn.uploading {
+  opacity: 0.7;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.quick-action-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.logo-hint {
+  font-size: 0.9rem;
+  color: #94a3b8;
+  margin-top: 0.5rem;
+}
+
 .info-row {
   display: flex;
   align-items: center;
@@ -555,6 +728,10 @@
     width: 100%;
   }
 
+  .profile-card {
+    padding: 1rem;
+  }
+
   .form-row {
     grid-template-columns: 1fr;
   }
@@ -583,5 +760,108 @@
   .upload-placeholder {
     width: 150px;
     height: 150px;
+  }
+
+  .profile-info-container {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+  
+  .current-logo-display {
+    min-width: auto;
+    max-width: none;
+    padding: 1rem;
+    width: 100%;
+  }
+  
+  .current-logo-image {
+    max-width: 100px;
+    max-height: 40px;
+  }
+  
+  .current-logo-preview {
+    min-height: 50px;
+  }
+  
+  .logo-quick-actions {
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.5rem;
+  }
+
+  .quick-action-btn {
+    padding: 0.4rem 0.6rem;
+    font-size: 0.75rem;
+    flex: 1;
+    min-width: 80px;
+    justify-content: center;
+  }
+
+  .no-logo-placeholder {
+    padding: 1rem;
+    min-height: 80px;
+  }
+
+  .no-logo-placeholder svg {
+    width: 24px;
+    height: 24px;
+  }
+
+  .logo-hint {
+    font-size: 0.8rem;
+    text-align: center;
+    margin-top: 0.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .current-logo-display {
+    padding: 0.75rem;
+  }
+
+  .current-logo-display h3 {
+    font-size: 0.9rem;
+  }
+
+  .current-logo-image {
+    max-width: 80px;
+    max-height: 35px;
+  }
+
+  .current-logo-preview {
+    min-height: 45px;
+    padding: 0.5rem;
+  }
+
+  .logo-quick-actions {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .quick-action-btn {
+    width: 100%;
+    padding: 0.5rem;
+    font-size: 0.8rem;
+  }
+
+  .logo-status {
+    font-size: 0.75rem;
+    padding: 0.2rem 0.6rem;
+  }
+
+  .no-logo-placeholder {
+    padding: 0.75rem;
+    min-height: 70px;
+  }
+
+  .upload-input-wrapper {
+    width: 100%;
+  }
+
+  .upload-label {
+    width: 100%;
+    justify-content: center;
+    padding: 0.6rem 1rem;
   }
 }

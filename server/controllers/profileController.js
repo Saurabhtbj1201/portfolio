@@ -28,6 +28,7 @@ export const getProfile = async (req, res) => {
       email: profile.email || '',
       place: profile.place || '',
       aboutImage: profile.aboutImage || '',
+      logo: profile.logo || '',
       createdAt: profile.createdAt,
       updatedAt: profile.updatedAt
     });
@@ -272,6 +273,83 @@ export const deleteAboutImage = async (req, res) => {
     res.json({ message: 'About image deleted successfully' });
   } catch (error) {
     console.error('Delete about image error:', error);
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// @desc    Upload logo
+// @route   POST /api/profile/upload-logo
+// @access  Private
+export const uploadLogo = async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ message: 'No file uploaded' });
+    }
+
+    // Upload to Cloudinary
+    const result = await new Promise((resolve, reject) => {
+      const uploadStream = cloudinary.uploader.upload_stream(
+        {
+          folder: 'portfolio/logo',
+          transformation: [
+            { width: 200, height: 200, crop: 'fit', format: 'auto' }
+          ]
+        },
+        (error, result) => {
+          if (error) reject(error);
+          else resolve(result);
+        }
+      );
+      uploadStream.end(req.file.buffer);
+    });
+
+    let profile = await Profile.findOne();
+    
+    // Delete old logo if exists
+    if (profile && profile.logoPublicId) {
+      await cloudinary.uploader.destroy(profile.logoPublicId);
+    }
+
+    if (!profile) {
+      profile = new Profile();
+    }
+
+    profile.logo = result.secure_url;
+    profile.logoPublicId = result.public_id;
+    await profile.save();
+
+    res.json({
+      message: 'Logo uploaded successfully',
+      logo: result.secure_url
+    });
+  } catch (error) {
+    console.error('Logo upload error:', error);
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// @desc    Delete logo
+// @route   DELETE /api/profile/logo
+// @access  Private
+export const deleteLogo = async (req, res) => {
+  try {
+    const profile = await Profile.findOne();
+    
+    if (!profile || !profile.logoPublicId) {
+      return res.status(404).json({ message: 'No logo found' });
+    }
+
+    // Delete from Cloudinary
+    await cloudinary.uploader.destroy(profile.logoPublicId);
+
+    // Update database
+    profile.logo = '';
+    profile.logoPublicId = '';
+    await profile.save();
+
+    res.json({ message: 'Logo deleted successfully' });
+  } catch (error) {
+    console.error('Delete logo error:', error);
     res.status(500).json({ message: error.message });
   }
 };

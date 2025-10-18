@@ -35,10 +35,12 @@ const Profile = () => {
   // Profile image and resume state
   const [profileData, setProfileData] = useState({
     profileImage: '',
-    resume: ''
+    resume: '',
+    logo: ''
   });
   const [uploadingImage, setUploadingImage] = useState(false);
   const [uploadingResume, setUploadingResume] = useState(false);
+  const [uploadingLogo, setUploadingLogo] = useState(false);
 
   // About section state
   const [aboutData, setAboutData] = useState({
@@ -67,8 +69,15 @@ const Profile = () => {
       fetchProfileData();
     } else if (activeTab === 'about') {
       fetchProfileData();
+    } else if (activeTab === 'profile') {
+      fetchProfileData();
     }
   }, [activeTab]);
+
+  // Fetch profile data on component mount
+  useEffect(() => {
+    fetchProfileData();
+  }, []);
 
   const fetchAdmins = async () => {
     try {
@@ -95,7 +104,8 @@ const Profile = () => {
       const response = await axios.get(`${import.meta.env.VITE_API_URL}/profile`);
       setProfileData({
         profileImage: response.data.profileImage || '',
-        resume: response.data.resume || ''
+        resume: response.data.resume || '',
+        logo: response.data.logo || ''
       });
       setAboutData({
         title: response.data.title || '',
@@ -490,6 +500,73 @@ const Profile = () => {
     }
   };
 
+  const handleLogoUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      showError('Please select an image file');
+      return;
+    }
+
+    setUploadingLogo(true);
+    const formData = new FormData();
+    formData.append('logo', file);
+
+    try {
+      const token = localStorage.getItem('token');
+      const response = await axios.post(
+        `${import.meta.env.VITE_API_URL}/profile/upload-logo`,
+        formData,
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'multipart/form-data'
+          }
+        }
+      );
+
+      setProfileData({ ...profileData, logo: response.data.logo });
+      showSuccess('Logo uploaded successfully');
+      
+      // Reset file input
+      e.target.value = '';
+    } catch (error) {
+      showError(error.response?.data?.message || 'Failed to upload logo');
+    } finally {
+      setUploadingLogo(false);
+    }
+  };
+
+  const handleDeleteLogo = () => {
+    setConfirmDialog({
+      isOpen: true,
+      title: 'Delete Logo',
+      message: 'Are you sure you want to delete the logo? This action cannot be undone.',
+      onConfirm: confirmDeleteLogo,
+      type: 'danger'
+    });
+  };
+
+  const confirmDeleteLogo = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      await axios.delete(
+        `${import.meta.env.VITE_API_URL}/profile/logo`,
+        {
+          headers: { 'Authorization': `Bearer ${token}` }
+        }
+      );
+
+      setProfileData({ ...profileData, logo: '' });
+      showSuccess('Logo deleted successfully');
+    } catch (error) {
+      showError(error.response?.data?.message || 'Failed to delete logo');
+    } finally {
+      setConfirmDialog({ ...confirmDialog, isOpen: false });
+    }
+  };
+
   return (
     <div className="profile-page">
       {/* Toast Container */}
@@ -546,29 +623,109 @@ const Profile = () => {
       <div className="profile-content">
         {/* Profile Info Tab */}
         {activeTab === 'profile' && (
-          <div className="profile-card">
-            <h2>Profile Information</h2>
-            <div className="profile-info">
-              <div className="info-row">
-                <span className="info-label">Username:</span>
-                <span className="info-value">{user?.username}</span>
-              </div>
-              <div className="info-row">
-                <span className="info-label">Email:</span>
-                <span className="info-value">{user?.email}</span>
-              </div>
-              <div className="info-row">
-                <span className="info-label">Role:</span>
-                <span className="info-value badge-role">{user?.role}</span>
-              </div>
-              <div className="info-row">
-                <span className="info-label">Account Created:</span>
-                <span className="info-value">
-                  {user?.createdAt ? new Date(user.createdAt).toLocaleDateString() : 'N/A'}
-                </span>
+          <>
+            <div className="profile-card">
+              <h2>Profile Information</h2>
+              <div className="profile-info-container">
+                <div className="profile-info">
+                  <div className="info-row">
+                    <span className="info-label">Username:</span>
+                    <span className="info-value">{user?.username}</span>
+                  </div>
+                  <div className="info-row">
+                    <span className="info-label">Email:</span>
+                    <span className="info-value">{user?.email}</span>
+                  </div>
+                  <div className="info-row">
+                    <span className="info-label">Role:</span>
+                    <span className="info-value badge-role">{user?.role}</span>
+                  </div>
+                  <div className="info-row">
+                    <span className="info-label">Account Created:</span>
+                    <span className="info-value">
+                      {user?.createdAt ? new Date(user.createdAt).toLocaleDateString() : 'N/A'}
+                    </span>
+                  </div>
+                </div>
+                
+                {/* Current Logo Display & Management */}
+                <div className="current-logo-display">
+                  <h3>Website Logo</h3>
+                  {profileData.logo ? (
+                    <div className="current-logo-container">
+                      <div className="current-logo-preview">
+                        <img 
+                          src={profileData.logo} 
+                          alt="Current Website Logo" 
+                          className="current-logo-image" 
+                        />
+                      </div>
+                      <p className="logo-status active">Active</p>
+                      <div className="logo-quick-actions">
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={handleLogoUpload}
+                          disabled={uploadingLogo}
+                          className="upload-input"
+                          id="quick-logo-upload"
+                        />
+                        <label htmlFor="quick-logo-upload" className={`quick-action-btn edit ${uploadingLogo ? 'uploading' : ''}`}>
+                          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                          </svg>
+                          {uploadingLogo ? 'Updating...' : 'Edit'}
+                        </label>
+                        <button 
+                          onClick={handleDeleteLogo} 
+                          className="quick-action-btn delete" 
+                          disabled={uploadingLogo}
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <polyline points="3 6 5 6 21 6"/>
+                            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                          </svg>
+                          Delete
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="no-logo-container">
+                      <div className="no-logo-placeholder">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                          <circle cx="9" cy="9" r="2"/>
+                          <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/>
+                        </svg>
+                        <p>No logo set</p>
+                      </div>
+                      <p className="logo-status inactive">Inactive</p>
+                      <div className="logo-quick-actions">
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={handleLogoUpload}
+                          disabled={uploadingLogo}
+                          className="upload-input"
+                          id="quick-logo-upload-new"
+                        />
+                        <label htmlFor="quick-logo-upload-new" className={`quick-action-btn upload ${uploadingLogo ? 'uploading' : ''}`}>
+                          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                            <polyline points="17 8 12 3 7 8"/>
+                            <line x1="12" y1="3" x2="12" y2="15"/>
+                          </svg>
+                          {uploadingLogo ? 'Uploading...' : 'Upload Logo'}
+                        </label>
+                      </div>
+                    </div>
+                  )}
+                  <p className="logo-hint">Displays in header and footer</p>
+                </div>
               </div>
             </div>
-          </div>
+          </>
         )}
 
         {/* Change Password Tab */}

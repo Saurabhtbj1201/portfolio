@@ -8,7 +8,7 @@ const Articles = () => {
   const [showAllArticles, setShowAllArticles] = useState(false);
   const [expandedArticles, setExpandedArticles] = useState(new Set());
 
-  const INITIAL_DISPLAY_COUNT = 3;
+  const INITIAL_DISPLAY_COUNT = 5;
 
   useEffect(() => {
     fetchArticles();

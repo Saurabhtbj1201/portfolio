@@ -37,6 +37,18 @@
   background-clip: text;
 }
 
+.logo-container {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.logo-image {
+  height: 35px;
+  width: auto;
+  object-fit: contain;
+}
+
 .nav-list {
   display: flex;
   list-style: none;
@@ -192,5 +204,49 @@
 
   .logout-text {
     display: none;
+  }
+
+  .logo-image {
+    height: 32px;
+  }
+
+  .logo-container {
+    gap: 0.5rem;
+  }
+
+  .logo-text {
+    font-size: 1.3rem;
+  }
+
+  .header-container {
+    margin: 0 1rem;
+    padding: 0.5rem 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .logo-image {
+    height: 28px;
+  }
+
+  .logo-text {
+    font-size: 1.1rem;
+  }
+
+  .logo-container {
+    gap: 0.4rem;
+  }
+
+  .header-container {
+    margin: 0 0.5rem;
+    padding: 0.4rem 0.75rem;
+  }
+
+  .theme-toggle {
+    padding: 0.4rem;
+  }
+
+  .logout-btn {
+    padding: 0.4rem;
   }
 }

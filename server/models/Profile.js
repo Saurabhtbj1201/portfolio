@@ -44,6 +44,15 @@ const profileSchema = new mongoose.Schema({
   aboutImagePublicId: {
     type: String,
     default: ''
+  },
+  // Logo fields
+  logo: {
+    type: String,
+    default: ''
+  },
+  logoPublicId: {
+    type: String,
+    default: ''
   }
 }, {
   timestamps: true

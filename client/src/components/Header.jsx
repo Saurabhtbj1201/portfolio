@@ -1,4 +1,4 @@
-import { useState, useContext } from 'react';
+import { useState, useContext, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import ThemeContext from '../context/ThemeContext';
 import AuthContext from '../context/AuthContext';
@@ -6,6 +6,7 @@ import '../styles/Header.css';
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [logo, setLogo] = useState('');
   const { isDarkMode, toggleTheme } = useContext(ThemeContext);
   const { user, logout } = useContext(AuthContext);
   const navigate = useNavigate();
@@ -19,7 +20,7 @@ const Header = () => {
     { name: 'Experience', href: '#experience' },
     { name: 'Education', href: '#education' },
     { name: 'Certifications', href: '#certifications' },
-    { name: 'Article', href: '#article' },
+    { name: 'Articles', href: '#articles' },
     { name: 'Awards', href: '#awards' },
     { name: 'Contact', href: '#contact' }
   ];
@@ -49,11 +50,34 @@ const Header = () => {
     setIsMenuOpen(false);
   };
 
+  useEffect(() => {
+    const fetchLogo = async () => {
+      try {
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/profile`);
+        const data = await response.json();
+        if (data.logo) {
+          setLogo(data.logo);
+        }
+      } catch (error) {
+        console.error('Error fetching logo:', error);
+      }
+    };
+
+    fetchLogo();
+  }, []);
+
   return (
     <header className="header">
       <div className="header-container">
         <Link to="/" className="logo">
-          <span className="logo-text">Saurabh</span>
+          {logo ? (
+            <div className="logo-container">
+              <img src={logo} alt="Logo" className="logo-image" />
+              <span className="logo-text">Saurabh</span>
+            </div>
+          ) : (
+            <span className="logo-text">Saurabh</span>
+          )}
         </Link>
 
         <nav className={`nav ${isMenuOpen ? 'nav-open' : ''}`}>

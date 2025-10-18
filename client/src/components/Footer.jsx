@@ -7,6 +7,7 @@ const Footer = () => {
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
   const [resumeLink, setResumeLink] = useState('');
+  const [logo, setLogo] = useState('');
 
   useEffect(() => {
     const fetchData = async () => {
@@ -16,11 +17,16 @@ const Footer = () => {
         setStats(analyticsData);
       }
 
-      // Fetch profile data for resume
+      // Fetch profile data for resume and logo
       try {
         const profileResponse = await axios.get(`${import.meta.env.VITE_API_URL}/profile`);
-        if (profileResponse.data && profileResponse.data.resume) {
-          setResumeLink(profileResponse.data.resume);
+        if (profileResponse.data) {
+          if (profileResponse.data.resume) {
+            setResumeLink(profileResponse.data.resume);
+          }
+          if (profileResponse.data.logo) {
+            setLogo(profileResponse.data.logo);
+          }
         }
       } catch (error) {
         console.error('Error fetching profile:', error);
@@ -152,9 +158,15 @@ const Footer = () => {
           {/* Logo and Brand Section */}
           <div className="footer-section footer-brand">
             <div className="brand-logo">
-              <div className="logo-circle">
-                <span className="logo-letter">S</span>
-              </div>
+              {logo ? (
+                <div className="logo-container">
+                  <img src={logo} alt="Logo" className="footer-logo-image" />
+                </div>
+              ) : (
+                <div className="logo-circle">
+                  <span className="logo-letter">S</span>
+                </div>
+              )}
               <div className="brand-info">
                 <h2 className="brand-name">Saurabh Kumar</h2>
                 <p className="brand-tagline-small">Full Stack Developer</p>
