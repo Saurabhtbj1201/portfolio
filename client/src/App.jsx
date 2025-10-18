@@ -18,6 +18,7 @@ import Footer from './components/Footer';
 import { AuthProvider } from './context/AuthContext';
 import { ThemeProvider } from './context/ThemeContext';
 import { trackPageView } from './utils/analytics';
+import NotFound from './pages/NotFound';
 
 function AnalyticsTracker() {
   const location = useLocation();
@@ -121,6 +122,8 @@ function App() {
                     </PrivateRoute>
                   }
                 />
+                {/* 404 Route - must be last */}
+                <Route path="*" element={<NotFound />} />
               </Routes>
             </main>
             <Footer />
