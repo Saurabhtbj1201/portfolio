@@ -2,12 +2,14 @@ import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { getAnalyticsStats } from '../utils/analytics';
 import '../styles/Footer.css';
+import { useLocation } from 'react-router-dom';
 
 const Footer = () => {
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
   const [resumeLink, setResumeLink] = useState('');
   const [logo, setLogo] = useState('');
+  const location = useLocation();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -37,6 +39,8 @@ const Footer = () => {
 
     fetchData();
   }, []);
+
+  const isAdminPage = location.pathname.startsWith('/admin');
 
   const quickLinks = [
     { 
@@ -154,131 +158,133 @@ const Footer = () => {
   return (
     <footer className="footer">
       <div className="footer-container">
-        <div className="footer-content">
-          {/* Logo and Brand Section */}
-          <div className="footer-section footer-brand">
-            <div className="brand-logo">
-              {logo ? (
-                <div className="logo-container">
-                  <img src={logo} alt="Logo" className="footer-logo-image" />
+        {!isAdminPage && (
+          <div className="footer-content">
+            {/* Logo and Brand Section */}
+            <div className="footer-section footer-brand">
+              <div className="brand-logo">
+                {logo ? (
+                  <div className="logo-container">
+                    <img src={logo} alt="Logo" className="footer-logo-image" />
+                  </div>
+                ) : (
+                  <div className="logo-circle">
+                    <span className="logo-letter">S</span>
+                  </div>
+                )}
+                <div className="brand-info">
+                  <h2 className="brand-name">Saurabh Kumar</h2>
+                  <p className="brand-tagline-small">Full Stack Developer</p>
                 </div>
-              ) : (
-                <div className="logo-circle">
-                  <span className="logo-letter">S</span>
-                </div>
-              )}
-              <div className="brand-info">
-                <h2 className="brand-name">Saurabh Kumar</h2>
-                <p className="brand-tagline-small">Full Stack Developer</p>
+              </div>
+              <p className="footer-description">
+                Thank you for visiting my personal portfolio website. Connect with me over socials.
+              </p>
+              <p className="footer-tagline">Keep Rising 🚀!</p>
+            </div>
+
+            {/* Quick Links Section */}
+            <div className="footer-section">
+              <h3 className="footer-title">Quick Links</h3>
+              <ul className="footer-links">
+                {quickLinks.map((link, index) => (
+                  <li key={index}>
+                    <a href={link.href} className="footer-link">
+                      <span className="link-icon">{link.icon}</span>
+                      {link.name}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            {/* Contact Info Section */}
+            <div className="footer-section">
+              <h3 className="footer-title">Contact Info</h3>
+              <ul className="contact-info">
+                <li>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
+                  </svg>
+                  <a href="tel:+919798024301">+91 9798024301</a>
+                </li>
+                <li>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                    <polyline points="22,6 12,13 2,6"/>
+                  </svg>
+                  <a href="mailto:Saurabhtbj143@gmail.com">Saurabhtbj143@gmail.com</a>
+                </li>
+                <li>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+                    <circle cx="12" cy="10" r="3"/>
+                  </svg>
+                  <span>Noida, India-201301</span>
+                </li>
+              </ul>
+
+              {/* Social Links */}
+              <div className="social-links">
+                {socialLinks.map((social, index) => (
+                  <a 
+                    key={index}
+                    href={social.href} 
+                    className="social-link"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label={social.name}
+                  >
+                    {social.icon}
+                  </a>
+                ))}
               </div>
             </div>
-            <p className="footer-description">
-              Thank you for visiting my personal portfolio website. Connect with me over socials.
-            </p>
-            <p className="footer-tagline">Keep Rising 🚀!</p>
-          </div>
 
-          {/* Quick Links Section */}
-          <div className="footer-section">
-            <h3 className="footer-title">Quick Links</h3>
-            <ul className="footer-links">
-              {quickLinks.map((link, index) => (
-                <li key={index}>
-                  <a href={link.href} className="footer-link">
-                    <span className="link-icon">{link.icon}</span>
-                    {link.name}
+            {/* CTA Section */}
+            <div className="footer-section cta-section">
+              <h3 className="footer-title">Let's Work Together</h3>
+              <p className="cta-description">
+                Interested in collaborating? Download my resume or get in touch!
+              </p>
+              <div className="cta-buttons">
+                {resumeLink ? (
+                  <a 
+                    href={resumeLink} 
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="cta-button primary"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                      <polyline points="7 10 12 15 17 10"/>
+                      <line x1="12" y1="15" x2="12" y2="3"/>
+                    </svg>
+                    Download Resume
                   </a>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Contact Info Section */}
-          <div className="footer-section">
-            <h3 className="footer-title">Contact Info</h3>
-            <ul className="contact-info">
-              <li>
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
-                </svg>
-                <a href="tel:+919798024301">+91 9798024301</a>
-              </li>
-              <li>
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
-                  <polyline points="22,6 12,13 2,6"/>
-                </svg>
-                <a href="mailto:Saurabhtbj143@gmail.com">Saurabhtbj143@gmail.com</a>
-              </li>
-              <li>
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
-                  <circle cx="12" cy="10" r="3"/>
-                </svg>
-                <span>Noida, India-201301</span>
-              </li>
-            </ul>
-
-            {/* Social Links */}
-            <div className="social-links">
-              {socialLinks.map((social, index) => (
-                <a 
-                  key={index}
-                  href={social.href} 
-                  className="social-link"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label={social.name}
-                >
-                  {social.icon}
+                ) : (
+                  <button className="cta-button primary" disabled style={{ opacity: 0.6, cursor: 'not-allowed' }}>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                      <polyline points="7 10 12 15 17 10"/>
+                      <line x1="12" y1="15" x2="12" y2="3"/>
+                    </svg>
+                    Resume Not Available
+                  </button>
+                )}
+                <a href="#contact" className="cta-button secondary">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                    <polyline points="22,6 12,13 2,6"/>
+                  </svg>
+                  Hire Me
                 </a>
-              ))}
+              </div>
             </div>
           </div>
+        )}
 
-          {/* CTA Section */}
-          <div className="footer-section cta-section">
-            <h3 className="footer-title">Let's Work Together</h3>
-            <p className="cta-description">
-              Interested in collaborating? Download my resume or get in touch!
-            </p>
-            <div className="cta-buttons">
-              {resumeLink ? (
-                <a 
-                  href={resumeLink} 
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="cta-button primary"
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-                    <polyline points="7 10 12 15 17 10"/>
-                    <line x1="12" y1="15" x2="12" y2="3"/>
-                  </svg>
-                  Download Resume
-                </a>
-              ) : (
-                <button className="cta-button primary" disabled style={{ opacity: 0.6, cursor: 'not-allowed' }}>
-                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-                    <polyline points="7 10 12 15 17 10"/>
-                    <line x1="12" y1="15" x2="12" y2="3"/>
-                  </svg>
-                  Resume Not Available
-                </button>
-              )}
-              <a href="#contact" className="cta-button secondary">
-                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
-                  <polyline points="22,6 12,13 2,6"/>
-                </svg>
-                Hire Me
-              </a>
-            </div>
-          </div>
-        </div>
-
-        {/* Copyright Section */}
+        {/* Copyright Section - Always show */}
         <div className="footer-bottom">
           <p className="copyright">
             © Designed with <span className="heart">♥</span> by <strong>Saurabh Kumar</strong>. All Rights Reserved 2025

@@ -294,6 +294,18 @@
   padding: 0.2rem;
 }
 
+/* Admin page footer styling */
+.footer:has(.footer-bottom:only-child) {
+  padding: 1rem;
+  margin-top: 2rem;
+}
+
+.footer:has(.footer-bottom:only-child) .footer-bottom {
+  border-top: none;
+  padding-top: 0;
+  margin-top: 0;
+}
+
 @media (max-width: 768px) {
   .footer {
     padding: 2rem 0.5rem 1rem;
@@ -306,6 +318,7 @@
 
   .footer-section {
     text-align: center;
+    gap: 0;
   }
 
   .brand-logo {
@@ -331,6 +344,8 @@
 
   .cta-buttons {
     gap: 0.75rem;
+    display: flex;
+    flex-direction: row;
   }
 
   .footer-bottom {

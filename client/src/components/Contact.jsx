@@ -12,6 +12,7 @@ const Contact = () => {
   const testimonialRef = useRef(null);
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isHovered, setIsHovered] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
 
   // Toast notifications
   const { toasts, removeToast, showSuccess, showError } = useToast();
@@ -36,23 +37,35 @@ const Contact = () => {
 
   useEffect(() => {
     fetchTestimonials();
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
-  // Group testimonials into slides of 2
+  const checkMobile = () => {
+    setIsMobile(window.innerWidth <= 768);
+  };
+
+  // Group testimonials based on screen size
+  const getTestimonialsPerSlide = () => {
+    return isMobile ? 1 : 2;
+  };
+
   const groupedTestimonials = [];
-  for (let i = 0; i < testimonials.length; i += 2) {
-    groupedTestimonials.push(testimonials.slice(i, i + 2));
+  const testimonialsPerSlide = getTestimonialsPerSlide();
+  for (let i = 0; i < testimonials.length; i += testimonialsPerSlide) {
+    groupedTestimonials.push(testimonials.slice(i, i + testimonialsPerSlide));
   }
 
-  // Auto-scroll testimonials
+  // Auto-scroll testimonials (slower on mobile)
   useEffect(() => {
     if (groupedTestimonials.length > 0 && !isHovered) {
       const interval = setInterval(() => {
         setCurrentSlide(prev => (prev + 1) % groupedTestimonials.length);
-      }, 2000);
+      }, isMobile ? 3000 : 2000);
       return () => clearInterval(interval);
     }
-  }, [groupedTestimonials.length, isHovered]);
+  }, [groupedTestimonials.length, isHovered, isMobile]);
 
   const fetchTestimonials = async () => {
     try {
@@ -141,12 +154,51 @@ const Contact = () => {
     }));
   };
 
+  const handleFormSwitch = (formType) => {
+    setActiveForm(formType);
+    // On mobile, scroll to form after switching
+    if (isMobile) {
+      setTimeout(() => {
+        const formContainer = document.querySelector('.forms-container');
+        if (formContainer) {
+          formContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      }, 100);
+    }
+  };
+
   const nextSlide = () => {
     setCurrentSlide(prev => (prev + 1) % groupedTestimonials.length);
   };
 
   const prevSlide = () => {
     setCurrentSlide(prev => (prev - 1 + groupedTestimonials.length) % groupedTestimonials.length);
+  };
+
+  // Touch gesture support for testimonials
+  const [touchStart, setTouchStart] = useState(null);
+  const [touchEnd, setTouchEnd] = useState(null);
+
+  const handleTouchStart = (e) => {
+    setTouchEnd(null);
+    setTouchStart(e.targetTouches[0].clientX);
+  };
+
+  const handleTouchMove = (e) => {
+    setTouchEnd(e.targetTouches[0].clientX);
+  };
+
+  const handleTouchEnd = () => {
+    if (!touchStart || !touchEnd) return;
+    const distance = touchStart - touchEnd;
+    const isLeftSwipe = distance > 50;
+    const isRightSwipe = distance < -50;
+
+    if (isLeftSwipe) {
+      nextSlide();
+    } else if (isRightSwipe) {
+      prevSlide();
+    }
   };
 
   const renderStars = (rating) => {
@@ -172,7 +224,6 @@ const Contact = () => {
       <ToastContainer toasts={toasts} removeToast={removeToast} />
       
       <div className="contact-container">
-
         <div className="contact-header">
           <h2 className="contact-title">Get In Touch</h2>
           <p className="contact-subtitle">Let's connect and create something amazing together</p>
@@ -183,22 +234,24 @@ const Contact = () => {
           <div className="form-tabs">
             <button 
               className={`tab-btn ${activeForm === 'review' ? 'active' : ''}`}
-              onClick={() => setActiveForm('review')}
+              onClick={() => handleFormSwitch('review')}
+              aria-label="Switch to review form"
             >
               <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
               </svg>
-              Leave a Review
+              {isMobile ? 'Review' : 'Leave a Review'}
             </button>
             <button 
               className={`tab-btn ${activeForm === 'contact' ? 'active' : ''}`}
-              onClick={() => setActiveForm('contact')}
+              onClick={() => handleFormSwitch('contact')}
+              aria-label="Switch to contact form"
             >
               <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
                 <polyline points="22,6 12,13 2,6"/>
               </svg>
-              Get In Touch
+              {isMobile ? 'Contact' : 'Get In Touch'}
             </button>
           </div>
 
@@ -211,6 +264,7 @@ const Contact = () => {
                     src="/feedback.jpg" 
                     alt="Leave a Review" 
                     className="form-image"
+                    loading="lazy"
                   />
                 </div>
                 
@@ -225,6 +279,7 @@ const Contact = () => {
                         onChange={handleReviewInputChange}
                         required
                         placeholder="Your full name"
+                        autoComplete="name"
                       />
                     </div>
 
@@ -237,6 +292,7 @@ const Contact = () => {
                         onChange={handleReviewInputChange}
                         required
                         placeholder="your.email@example.com"
+                        autoComplete="email"
                       />
                     </div>
 
@@ -258,6 +314,7 @@ const Contact = () => {
                         value={reviewForm.websiteLink}
                         onChange={handleReviewInputChange}
                         placeholder="https://yourwebsite.com"
+                        autoComplete="url"
                       />
                     </div>
                   </div>
@@ -271,6 +328,7 @@ const Contact = () => {
                           type="button"
                           className={`star-btn ${star <= reviewForm.rating ? 'active' : ''}`}
                           onClick={() => setReviewForm(prev => ({ ...prev, rating: star }))}
+                          aria-label={`Rate ${star} star${star !== 1 ? 's' : ''}`}
                         >
                           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                             <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
@@ -287,7 +345,7 @@ const Contact = () => {
                       value={reviewForm.feedback}
                       onChange={handleReviewInputChange}
                       required
-                      rows="5"
+                      rows={isMobile ? "4" : "5"}
                       placeholder="Share your experience working with me..."
                     />
                   </div>
@@ -311,6 +369,7 @@ const Contact = () => {
                     src="/contact.jpg" 
                     alt="Get In Touch" 
                     className="form-image"
+                    loading="lazy"
                   />
                 </div>
                 
@@ -325,6 +384,7 @@ const Contact = () => {
                         onChange={handleContactInputChange}
                         required
                         placeholder="Your full name"
+                        autoComplete="name"
                       />
                     </div>
 
@@ -337,6 +397,7 @@ const Contact = () => {
                         onChange={handleContactInputChange}
                         required
                         placeholder="your.email@example.com"
+                        autoComplete="email"
                       />
                     </div>
 
@@ -349,6 +410,7 @@ const Contact = () => {
                         onChange={handleContactInputChange}
                         required
                         placeholder="+1 (555) 123-4567"
+                        autoComplete="tel"
                       />
                     </div>
 
@@ -375,7 +437,7 @@ const Contact = () => {
                       value={contactForm.message}
                       onChange={handleContactInputChange}
                       required
-                      rows="5"
+                      rows={isMobile ? "4" : "5"}
                       placeholder="Tell me about your project or how I can help you..."
                     />
                   </div>
@@ -392,7 +454,8 @@ const Contact = () => {
             )}
           </div>
         </div>
-                {/* Testimonials Section */}
+
+        {/* Testimonials Section */}
         {testimonials.length > 0 && (
           <div className="testimonials-section">
             <h3 className="testimonials-title">What People Say</h3>
@@ -400,8 +463,15 @@ const Contact = () => {
               className="testimonials-carousel"
               onMouseEnter={() => setIsHovered(true)}
               onMouseLeave={() => setIsHovered(false)}
+              onTouchStart={handleTouchStart}
+              onTouchMove={handleTouchMove}
+              onTouchEnd={handleTouchEnd}
             >
-              <button className="carousel-btn prev" onClick={prevSlide}>
+              <button 
+                className="carousel-btn prev" 
+                onClick={prevSlide}
+                aria-label="Previous testimonials"
+              >
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <polyline points="15 18 9 12 15 6"/>
                 </svg>
@@ -419,7 +489,11 @@ const Contact = () => {
                           <div className="testimonial-header">
                             <div className="testimonial-avatar">
                               {testimonial.profileImage ? (
-                                <img src={testimonial.profileImage} alt={testimonial.fullName} />
+                                <img 
+                                  src={testimonial.profileImage} 
+                                  alt={testimonial.fullName}
+                                  loading="lazy"
+                                />
                               ) : (
                                 <div className="avatar-placeholder">
                                   {testimonial.fullName.charAt(0).toUpperCase()}
@@ -442,6 +516,7 @@ const Contact = () => {
                               target="_blank" 
                               rel="noopener noreferrer"
                               className="testimonial-link"
+                              aria-label={`Visit ${testimonial.fullName}'s website`}
                             >
                               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                                 <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
@@ -453,14 +528,18 @@ const Contact = () => {
                           )}
                         </div>
                       ))}
-                      {/* Fill empty space if odd number of testimonials */}
-                      {slide.length === 1 && <div></div>}
+                      {/* Fill empty space if odd number of testimonials on desktop */}
+                      {!isMobile && slide.length === 1 && <div></div>}
                     </div>
                   ))}
                 </div>
               </div>
 
-              <button className="carousel-btn next" onClick={nextSlide}>
+              <button 
+                className="carousel-btn next" 
+                onClick={nextSlide}
+                aria-label="Next testimonials"
+              >
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <polyline points="9 18 15 12 9 6"/>
                 </svg>
@@ -472,6 +551,7 @@ const Contact = () => {
                     key={index}
                     className={`indicator ${index === currentSlide ? 'active' : ''}`}
                     onClick={() => setCurrentSlide(index)}
+                    aria-label={`Go to testimonial slide ${index + 1}`}
                   />
                 ))}
               </div>

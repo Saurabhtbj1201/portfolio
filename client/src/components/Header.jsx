@@ -40,6 +40,23 @@ const Header = () => {
 
   const navLinks = user ? adminNavLinks : publicNavLinks;
 
+  // Check if we're on login or 404 pages
+  const isLoginOrNotFoundPage = location.pathname === '/login' || 
+    (location.pathname !== '/' && !location.pathname.startsWith('/admin'));
+
+  const specialNavLinks = [
+    { name: 'Home', href: '/#home' },
+    { name: 'About', href: '/#about' },
+    { name: 'Skills', href: '/#skills' },
+    { name: 'Projects', href: '/#projects' },
+    { name: 'Experience', href: '/#experience' },
+    { name: 'Education', href: '/#education' },
+    { name: 'Certifications', href: '/#certifications' },
+    { name: 'Articles', href: '/#articles' },
+    { name: 'Awards', href: '/#awards' },
+    { name: 'Contact', href: '/#contact' }
+  ];
+
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
   };
@@ -47,6 +64,11 @@ const Header = () => {
   const handleLogout = () => {
     logout();
     navigate('/');
+    setIsMenuOpen(false);
+  };
+
+  const handleSpecialNavClick = (href) => {
+    window.location.href = href;
     setIsMenuOpen(false);
   };
 
@@ -82,27 +104,40 @@ const Header = () => {
 
         <nav className={`nav ${isMenuOpen ? 'nav-open' : ''}`}>
           <ul className="nav-list">
-            {navLinks.map((link, index) => (
-              <li key={index} className="nav-item">
-                {user ? (
-                  <Link 
-                    to={link.href} 
-                    className={`nav-link ${location.pathname === link.href ? 'active' : ''}`}
-                    onClick={() => setIsMenuOpen(false)}
-                  >
-                    {link.name}
-                  </Link>
-                ) : (
-                  <a 
-                    href={link.href} 
+            {isLoginOrNotFoundPage ? (
+              specialNavLinks.map((link, index) => (
+                <li key={index} className="nav-item">
+                  <button 
                     className="nav-link"
-                    onClick={() => setIsMenuOpen(false)}
+                    onClick={() => handleSpecialNavClick(link.href)}
                   >
                     {link.name}
-                  </a>
-                )}
-              </li>
-            ))}
+                  </button>
+                </li>
+              ))
+            ) : (
+              navLinks.map((link, index) => (
+                <li key={index} className="nav-item">
+                  {user ? (
+                    <Link 
+                      to={link.href} 
+                      className={`nav-link ${location.pathname === link.href ? 'active' : ''}`}
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      {link.name}
+                    </Link>
+                  ) : (
+                    <a 
+                      href={link.href} 
+                      className="nav-link"
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      {link.name}
+                    </a>
+                  )}
+                </li>
+              ))
+            )}
           </ul>
         </nav>
 

@@ -288,6 +288,9 @@
     .articles-section {
         padding: 3rem 1rem;
     }
+    .articles-container {
+        margin: 0;
+    }
 
     .articles-grid {
         grid-template-columns: 1fr;

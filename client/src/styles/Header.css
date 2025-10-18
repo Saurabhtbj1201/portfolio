@@ -91,6 +91,34 @@
   font-weight: 600;
 }
 
+/* Ensure button nav-links have same styling as anchor nav-links */
+button.nav-link {
+  background: none;
+  border: none;
+  font-family: inherit;
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: var(--text-color);
+  text-decoration: none;
+  cursor: pointer;
+  padding: inherit;
+  margin: inherit;
+  display: inherit;
+  align-items: inherit;
+  position: relative;
+  transition: color 0.3s ease;
+}
+
+button.nav-link:hover {
+  color: var(--accent-color);
+  transform: translateY(-2px);
+}
+
+button.nav-link:focus {
+  outline: 2px solid var(--accent-color);
+  outline-offset: 2px;
+}
+
 .header-actions {
   display: flex;
   align-items: center;

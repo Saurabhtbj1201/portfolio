@@ -55,6 +55,15 @@ const NotFound = () => {
             Don't worry, even the best developers encounter broken links sometimes!
           </p>
           
+          <div className="contact-message">
+            <p>
+              If you're facing any issues or need help, feel free to reach us at:{' '}
+              <a href="mailto:Saurabhtbj143@outlook.com" className="contact-email">
+                Saurabhtbj143@outlook.com
+              </a>
+            </p>
+          </div>
+          
           <div className="error-actions">
             <Link 
               to="/" 
@@ -92,10 +101,19 @@ const NotFound = () => {
         
         <div className="error-animation">
           <div className="floating-elements">
-            <div className="element element-1">{'{ }'}</div>
-            <div className="element element-2">{'< />'}</div>
-            <div className="element element-3">{'404'}</div>
-            <div className="element element-4">{'</>'}</div>
+            <div className="element element-1 bounce">{'{ }'}</div>
+            <div className="element element-2 float">{'< />'}</div>
+            <div className="element element-3 pulse">{'404'}</div>
+            <div className="element element-4 rotate">{'</>'}</div>
+            <div className="element element-5 shake">{'console.log("404")'}</div>
+            <div className="element element-6 slide">{'function notFound()'}</div>
+            <div className="element element-7 bounce-delay">{'return null;'}</div>
+            <div className="element element-8 float-reverse">{'// Page not found'}</div>
+          </div>
+          <div className="error-glitch">
+            <span className="glitch-text">ERROR</span>
+            <span className="glitch-text">ERROR</span>
+            <span className="glitch-text">ERROR</span>
           </div>
         </div>
       </div>
