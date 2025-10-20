@@ -53,6 +53,13 @@ const Profile = () => {
   });
   const [uploadingAboutImage, setUploadingAboutImage] = useState(false);
 
+  // Floating message state
+  const [floatingMessage, setFloatingMessage] = useState('');
+  const [highlightText, setHighlightText] = useState('');
+  const [messageHistory, setMessageHistory] = useState([]);
+  const [editingMessageId, setEditingMessageId] = useState(null);
+  const [loadingMessage, setLoadingMessage] = useState(false);
+
   // Confirmation dialog state
   const [confirmDialog, setConfirmDialog] = useState({
     isOpen: false,
@@ -71,6 +78,8 @@ const Profile = () => {
       fetchProfileData();
     } else if (activeTab === 'profile') {
       fetchProfileData();
+    } else if (activeTab === 'message') {
+      fetchFloatingMessages();
     }
   }, [activeTab]);
 
@@ -117,6 +126,32 @@ const Profile = () => {
       });
     } catch (error) {
       showError('Failed to fetch profile data');
+    }
+  };
+
+  const fetchFloatingMessages = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await axios.get(`${import.meta.env.VITE_API_URL}/floating-message/admin`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      
+      setMessageHistory(response.data);
+      
+      // Set active message in form if exists
+      const activeMessage = response.data.find(msg => msg.isActive);
+      if (activeMessage) {
+        setFloatingMessage(activeMessage.message);
+        setHighlightText(activeMessage.highlightText || '');
+        setEditingMessageId(activeMessage._id);
+      } else {
+        setFloatingMessage('');
+        setHighlightText('');
+        setEditingMessageId(null);
+      }
+    } catch (error) {
+      console.error('Error fetching floating messages:', error);
+      showError('Failed to fetch floating messages');
     }
   };
 
@@ -567,6 +602,103 @@ const Profile = () => {
     }
   };
 
+  const handleSaveMessage = async (e) => {
+    e.preventDefault();
+    
+    if (!floatingMessage.trim()) {
+      showError('Message is required');
+      return;
+    }
+
+    if (floatingMessage.length > 200) {
+      showError('Message must be less than 200 characters');
+      return;
+    }
+
+    setLoadingMessage(true);
+
+    try {
+      const token = localStorage.getItem('token');
+      const config = { headers: { Authorization: `Bearer ${token}` } };
+      
+      const messageData = {
+        message: floatingMessage.trim(),
+        highlightText: highlightText.trim(),
+        isActive: true
+      };
+
+      if (editingMessageId) {
+        await axios.put(`${import.meta.env.VITE_API_URL}/floating-message/admin/${editingMessageId}`, messageData, config);
+        showSuccess('Message updated successfully!');
+      } else {
+        const response = await axios.post(`${import.meta.env.VITE_API_URL}/floating-message/admin`, messageData, config);
+        setEditingMessageId(response.data._id);
+        showSuccess('Message created successfully!');
+      }
+
+      fetchFloatingMessages();
+    } catch (error) {
+      console.error('Error saving message:', error);
+      showError(error.response?.data?.message || 'Failed to save message');
+    } finally {
+      setLoadingMessage(false);
+    }
+  };
+
+  const handleDeleteMessage = () => {
+    if (!editingMessageId) return;
+    
+    setConfirmDialog({
+      isOpen: true,
+      title: 'Delete Floating Message',
+      message: 'Are you sure you want to delete this floating message? This action cannot be undone.',
+      onConfirm: confirmDeleteMessage,
+      type: 'danger'
+    });
+  };
+
+  const confirmDeleteMessage = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      await axios.delete(`${import.meta.env.VITE_API_URL}/floating-message/admin/${editingMessageId}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      
+      setFloatingMessage('');
+      setHighlightText('');
+      setEditingMessageId(null);
+      showSuccess('Message deleted successfully!');
+      fetchFloatingMessages();
+    } catch (error) {
+      console.error('Error deleting message:', error);
+      showError('Failed to delete message');
+    } finally {
+      setConfirmDialog({ ...confirmDialog, isOpen: false });
+    }
+  };
+
+  const handleResetMessage = () => {
+    setFloatingMessage('');
+    setHighlightText('');
+    setEditingMessageId(null);
+  };
+
+  const formatMessagePreview = (message, highlight) => {
+    if (!highlight || !message.includes(highlight)) {
+      return message;
+    }
+    
+    const parts = message.split(highlight);
+    return parts.map((part, index) => (
+      <span key={index}>
+        {part}
+        {index < parts.length - 1 && (
+          <span className="floating-message-highlight-preview">{highlight}</span>
+        )}
+      </span>
+    ));
+  };
+
   return (
     <div className="profile-page">
       {/* Toast Container */}
@@ -593,6 +725,12 @@ const Profile = () => {
           onClick={() => setActiveTab('profile')}
         >
           My Profile
+        </button>
+        <button 
+          className={`tab-btn ${activeTab === 'message' ? 'active' : ''}`}
+          onClick={() => setActiveTab('message')}
+        >
+          Floating Message
         </button>
         <button 
           className={`tab-btn ${activeTab === 'about' ? 'active' : ''}`}
@@ -1159,6 +1297,220 @@ const Profile = () => {
                 {loading ? 'Updating...' : 'Update About Section'}
               </button>
             </form>
+          </div>
+        )}
+
+        {/* Floating Message Tab */}
+        {activeTab === 'message' && (
+          <div className="profile-card">
+            <h2>Floating Message Settings</h2>
+            <p className="profile-subtitle" style={{ marginBottom: '2rem' }}>
+              Manage the floating message that appears on your homepage. You can add special styling to specific text.
+            </p>
+
+            <form onSubmit={handleSaveMessage} className="admin-form">
+              <div className="form-groupa">
+                <label>
+                  Message Text
+                  <span style={{ color: '#ef4444', fontWeight: '600', marginLeft: '4px' }}>*</span>
+                </label>
+                <textarea
+                  value={floatingMessage}
+                  onChange={(e) => setFloatingMessage(e.target.value)}
+                  placeholder="Enter your floating message here..."
+                  maxLength="200"
+                  rows="3"
+                  className="form-input"
+                  style={{ minHeight: '90px', resize: 'vertical' }}
+                  required
+                />
+                <div style={{ 
+                  textAlign: 'right', 
+                  fontSize: '0.8rem', 
+                  color: '#64748b', 
+                  marginTop: '0.5rem' 
+                }}>
+                  {floatingMessage.length}/200 characters
+                </div>
+              </div>
+
+              <div className="form-groupa">
+                <label>
+                  Highlight Text (Optional)
+                  <span style={{ 
+                    display: 'inline-flex', 
+                    alignItems: 'center', 
+                    justifyContent: 'center',
+                    width: '18px', 
+                    height: '18px', 
+                    background: '#667eea', 
+                    color: 'white', 
+                    borderRadius: '50%', 
+                    fontSize: '0.7rem', 
+                    fontWeight: '600', 
+                    marginLeft: '8px',
+                    cursor: 'help'
+                  }} title="Text that will be styled differently within your message">?</span>
+                </label>
+                <input
+                  type="text"
+                  value={highlightText}
+                  onChange={(e) => setHighlightText(e.target.value)}
+                  placeholder="e.g., 'special offer', 'new project', etc."
+                  className="form-input"
+                />
+                <small style={{ 
+                  color: '#64748b', 
+                  fontSize: '0.85rem', 
+                  lineHeight: '1.4', 
+                  marginTop: '0.5rem',
+                  display: 'block'
+                }}>
+                  Enter specific text from your message that you want to highlight with special styling.
+                </small>
+              </div>
+
+              {floatingMessage && (
+                <div className="form-groupa">
+                  <label>Preview</label>
+                  <div className="floating-message-preview">
+                    <div className="preview-bar">
+                      <div className="preview-content">
+                        <span className="preview-text">
+                          {formatMessagePreview(floatingMessage, highlightText)}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              <div style={{ display: 'flex', gap: '1rem', justifyContent: 'flex-end', marginTop: '2rem' }}>
+                <button
+                  type="button"
+                  onClick={handleResetMessage}
+                  disabled={loadingMessage}
+                  className="btn-secondary"
+                  style={{
+                    background: 'transparent',
+                    color: 'var(--text-color)',
+                    border: '2px solid var(--border-color)',
+                    padding: '0.75rem 1.5rem',
+                    borderRadius: '8px',
+                    fontWeight: '500',
+                    cursor: 'pointer',
+                    transition: 'all 0.3s ease'
+                  }}
+                >
+                  Reset
+                </button>
+                
+                {editingMessageId && (
+                  <button
+                    type="button"
+                    onClick={handleDeleteMessage}
+                    disabled={loadingMessage}
+                    className="btn-delete"
+                    style={{
+                      background: '#ef4444',
+                      color: 'white',
+                      border: 'none',
+                      padding: '0.75rem 1.5rem',
+                      borderRadius: '8px',
+                      fontWeight: '500',
+                      cursor: 'pointer',
+                      transition: 'all 0.3s ease'
+                    }}
+                  >
+                    Delete Message
+                  </button>
+                )}
+                
+                <button
+                  type="submit"
+                  disabled={loadingMessage}
+                  className="btn-primary"
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '0.5rem'
+                  }}
+                >
+                  {loadingMessage && (
+                    <div style={{
+                      width: '16px',
+                      height: '16px',
+                      border: '2px solid rgba(255, 255, 255, 0.3)',
+                      borderTopColor: 'white',
+                      borderRadius: '50%',
+                      animation: 'spin 1s linear infinite'
+                    }}></div>
+                  )}
+                  {loadingMessage ? (
+                    editingMessageId ? 'Updating...' : 'Creating...'
+                  ) : (
+                    editingMessageId ? 'Update Message' : 'Create Message'
+                  )}
+                </button>
+              </div>
+            </form>
+
+            {messageHistory.length > 0 && (
+              <div style={{ marginTop: '3rem' }}>
+                <h3 style={{ color: 'var(--text-color)', fontSize: '1.2rem', marginBottom: '1rem' }}>
+                  Message History
+                </h3>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                  {messageHistory.slice(0, 5).map((msg) => (
+                    <div key={msg._id} style={{
+                      padding: '1rem',
+                      border: `1px solid ${msg.isActive ? '#22c55e' : 'var(--border-color)'}`,
+                      borderRadius: '8px',
+                      background: msg.isActive ? 'rgba(34, 197, 94, 0.05)' : 'var(--input-bg)',
+                      transition: 'all 0.3s ease'
+                    }}>
+                      <div style={{ marginBottom: '0.5rem' }}>
+                        <span style={{ color: 'var(--text-color)', fontSize: '0.9rem', lineHeight: '1.4' }}>
+                          {msg.message}
+                        </span>
+                        {msg.highlightText && (
+                          <div style={{
+                            color: 'var(--text-muted)',
+                            fontSize: '0.8rem',
+                            fontStyle: 'italic',
+                            marginTop: '0.25rem'
+                          }}>
+                            Highlight: "{msg.highlightText}"
+                          </div>
+                        )}
+                      </div>
+                      <div style={{ 
+                        display: 'flex', 
+                        justifyContent: 'space-between', 
+                        alignItems: 'center',
+                        gap: '1rem'
+                      }}>
+                        <span style={{
+                          padding: '0.2rem 0.6rem',
+                          borderRadius: '12px',
+                          fontSize: '0.75rem',
+                          fontWeight: '600',
+                          textTransform: 'uppercase',
+                          letterSpacing: '0.5px',
+                          background: msg.isActive ? 'rgba(34, 197, 94, 0.2)' : 'rgba(156, 163, 175, 0.2)',
+                          color: msg.isActive ? '#22c55e' : '#9ca3af'
+                        }}>
+                          {msg.isActive ? 'Active' : 'Inactive'}
+                        </span>
+                        <span style={{ color: 'var(--text-muted)', fontSize: '0.8rem' }}>
+                          {new Date(msg.updatedAt).toLocaleDateString()}
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         )}
       </div>

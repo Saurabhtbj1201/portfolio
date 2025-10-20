@@ -704,6 +704,99 @@
   color: white;
 }
 
+/* Floating Message Preview Styles */
+.floating-message-preview {
+  border: 2px dashed var(--border-color);
+  border-radius: 8px;
+  padding: 1rem;
+  background: rgba(102, 126, 234, 0.05);
+  margin-top: 0.75rem;
+}
+
+.preview-bar {
+  background: transparent;
+  backdrop-filter: blur(10px);
+  border-radius: 6px;
+  padding: 0.75rem;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.preview-content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: slidePreview 8s linear infinite;
+}
+
+.preview-text {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  font-size: 1rem;
+  font-weight: 600;
+  white-space: nowrap;
+  letter-spacing: 0.5px;
+}
+
+.floating-message-highlight-preview {
+  background: linear-gradient(135deg, #ff006a 0%, #ff0095 100%) !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  background-clip: text !important;
+  font-weight: 700 !important;
+  text-shadow: 0 2px 8px rgba(255, 0, 106, 0.3) !important;
+  position: relative;
+}
+
+.floating-message-highlight-preview::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(135deg, #ff006a 0%, #ff0095 100%);
+  border-radius: 1px;
+  opacity: 0.6;
+}
+
+.dark .preview-text {
+  background: linear-gradient(135deg, #a855f7 0%, #3b82f6 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.dark .floating-message-highlight-preview {
+  background: linear-gradient(135deg, #f472b6 0%, #ec4899 100%) !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  background-clip: text !important;
+}
+
+.dark .floating-message-highlight-preview::after {
+  background: linear-gradient(135deg, #f472b6 0%, #ec4899 100%);
+}
+
+@keyframes slidePreview {
+  0% { transform: translateX(100%); }
+  100% { transform: translateX(-100%); }
+}
+
+/* Button hover effects */
+.btn-secondary:hover:not(:disabled) {
+  background: var(--hover-bg);
+  border-color: var(--primary-color);
+}
+
+.btn-delete:hover:not(:disabled) {
+  background: #dc2626;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(239, 68, 68, 0.3);
+}
+
 @media (max-width: 768px) {
   .profile-page {
     padding: 1rem;

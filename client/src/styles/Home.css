@@ -267,6 +267,143 @@
   }
 }
 
+/* Floating Message Bar Styles */
+.floating-message-bar {
+  width: 100%;
+  background: transparent;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  z-index: 999;
+  overflow: hidden;
+  padding: 5px 0;
+  margin-top: 3.5rem; /* Space below header */
+}
+
+.floating-message-content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  animation: slideMessage 15s linear infinite;
+}
+
+.floating-message-text {
+  background: linear-gradient(135deg, #667eea 0%, #b469ff 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  font-size: 1.1rem;
+  font-weight: 600;
+  white-space: nowrap;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  letter-spacing: 0.5px;
+  animation: fadeInOut 3s ease-in-out infinite alternate;
+}
+
+.floating-message-highlight {
+  background: linear-gradient(135deg, #ff006a 0%, #ff0095 100%) !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  background-clip: text !important;
+  font-weight: 700 !important;
+  text-shadow: 0 2px 8px rgba(255, 0, 106, 0.3) !important;
+  position: relative;
+}
+
+.floating-message-highlight::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(135deg, #ff006a 0%, #ff0095 100%);
+  border-radius: 1px;
+  opacity: 0.6;
+}
+
+.dark .floating-message-highlight {
+  background: linear-gradient(135deg, #f472b6 0%, #ec4899 100%) !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  background-clip: text !important;
+}
+
+.dark .floating-message-highlight::after {
+  background: linear-gradient(135deg, #f472b6 0%, #ec4899 100%);
+}
+
+/* Dark mode styles */
+.dark .floating-message-bar {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  background: rgba(0, 0, 0, 0.1);
+}
+
+/* Animations */
+@keyframes slideMessage {
+  0% {
+    transform: translateX(100%);
+  }
+  100% {
+    transform: translateX(-100%);
+  }
+}
+
+@keyframes fadeInOut {
+  0% {
+    opacity: 0.7;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.02);
+  }
+  100% {
+    opacity: 0.7;
+    transform: scale(1);
+  }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .hero-section {
+    margin-top: 15px;
+  }
+  
+  .floating-message-text {
+    font-size: 0.95rem;
+    letter-spacing: 0.3px;
+  }
+  
+  .floating-message-content {
+    animation: slideMessage 12s linear infinite;
+  }
+}
+
+@media (max-width: 480px) {
+  .floating-message-bar {
+    margin-top: 3rem;
+  }
+  
+  .hero-section {
+    margin-top: 10px;
+  }
+  
+  .floating-message-text {
+    font-size: 0.9rem;
+  }
+  
+  .floating-message-content {
+    animation: slideMessage 10s linear infinite;
+  }
+}
+
+/* Pause animation on hover */
+.floating-message-bar:hover .floating-message-content {
+  animation-play-state: paused;
+}
+
 /* Responsive */
 @media (max-width: 968px) {
   .hero-content {

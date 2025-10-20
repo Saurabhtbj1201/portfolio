@@ -18,6 +18,9 @@ const Home = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isDeleting, setIsDeleting] = useState(false);
   const [scrollProgress, setScrollProgress] = useState(0);
+  const [floatingMessage, setFloatingMessage] = useState('');
+  const [highlightText, setHighlightText] = useState('');
+  const [messageLoading, setMessageLoading] = useState(true);
 
   const roles = ['Backend Development', 'Frontend Development', 'Data Analytics'];
 
@@ -160,6 +163,11 @@ const Home = () => {
     return () => clearTimeout(timeout);
   }, [currentText, isDeleting, currentIndex]);
 
+  // New useEffect for fetching floating message
+  useEffect(() => {
+    fetchFloatingMessage();
+  }, []);
+
   const fetchProfile = async () => {
     try {
       const response = await axios.get(`${import.meta.env.VITE_API_URL}/profile`);
@@ -192,6 +200,36 @@ const Home = () => {
     }
   };
 
+  const fetchFloatingMessage = async () => {
+    try {
+      const response = await axios.get(`${import.meta.env.VITE_API_URL}/floating-message`);
+      if (response.data && response.data.message) {
+        setFloatingMessage(response.data.message);
+        setHighlightText(response.data.highlightText || '');
+      }
+      setMessageLoading(false);
+    } catch (error) {
+      console.error('Error fetching floating message:', error);
+      setMessageLoading(false);
+    }
+  };
+
+  const formatFloatingMessage = (message, highlight) => {
+    if (!highlight || !message.includes(highlight)) {
+      return message;
+    }
+    
+    const parts = message.split(highlight);
+    return parts.map((part, index) => (
+      <span key={index}>
+        {part}
+        {index < parts.length - 1 && (
+          <span className="floating-message-highlight">{highlight}</span>
+        )}
+      </span>
+    ));
+  };
+
   const scrollToSection = (sectionId) => {
     const element = document.getElementById(sectionId);
     if (element) {
@@ -208,6 +246,17 @@ const Home = () => {
           style={{ width: `${scrollProgress}%` }}
         ></div>
       </div>
+
+      {/* Floating Message Bar */}
+      {!messageLoading && floatingMessage && (
+        <div className="floating-message-bar">
+          <div className="floating-message-content">
+            <span className="floating-message-text">
+              {formatFloatingMessage(floatingMessage, highlightText)}
+            </span>
+          </div>
+        </div>
+      )}
 
       {/* Hero Section with Particles */}
       <section id="home" className="hero-section">

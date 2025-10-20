@@ -19,6 +19,7 @@ import certificationRoutes from './routes/certificationRoutes.js';
 import feedbackRoutes from './routes/feedbackRoutes.js';
 import contactMessageRoutes from './routes/contactMessageRoutes.js';
 import articleRoutes from './routes/articleRoutes.js';
+import floatingMessageRoutes from './routes/floatingMessageRoutes.js';
 
 // Connect to database
 connectDB();
@@ -30,7 +31,7 @@ const app = express();
 
 // Middleware
 app.use(cors({
-  origin: process.env.CLIENT_URL,
+  origin: process.env.CLIENT_URL.split(',').map(url => url.trim()),
   credentials: true
 }));
 app.use(express.json());
@@ -49,6 +50,7 @@ app.use('/api/certifications', certificationRoutes);
 app.use('/api/feedback', feedbackRoutes);
 app.use('/api/contact-messages', contactMessageRoutes);
 app.use('/api/articles', articleRoutes);
+app.use('/api/floating-message', floatingMessageRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {

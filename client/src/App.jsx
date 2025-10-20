@@ -38,7 +38,7 @@ function App() {
           <AnalyticsTracker />
           <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
             <Header />
-            <main style={{ flex: 1, marginTop: '70px' }}>
+            <main style={{ flex: 1 }}>
               <Routes>
                 <Route path="/" element={<Home />} />
                 <Route path="/login" element={<Login />} />

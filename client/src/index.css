@@ -44,7 +44,6 @@ body {
   flex-direction: column;
 }
 
-
 /* Custom scrollbar styles for entire page */
 ::-webkit-scrollbar {
   width: 6px;
