@@ -1,7 +1,7 @@
 .admin-projects-page {
   padding: 2rem;
   max-width: 1600px;
-  margin: 0 auto;
+  margin-top: 3.5rem;
   min-height: calc(100vh - 70px);
 }
 
@@ -563,6 +563,7 @@
 @media (max-width: 768px) {
   .admin-projects-page {
     padding: 1rem;
+    margin-top: 2rem;
   }
 
   .form-card, .list-card {

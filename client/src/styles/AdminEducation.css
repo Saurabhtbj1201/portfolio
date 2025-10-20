@@ -1,7 +1,7 @@
 .admin-education-page {
   padding: 1rem;
   max-width: 1400px;
-  margin: 0 auto;
+  margin-top: 3.5rem;
   min-height: calc(100vh - 70px);
 }
 
@@ -355,6 +355,7 @@
 @media (max-width: 768px) {
   .admin-education-page {
     padding: 1rem;
+    margin-top: 2rem;
   }
 
   .form-card, .list-card {

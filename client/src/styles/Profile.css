@@ -1,7 +1,7 @@
 .profile-page {
   padding: 2rem;
   max-width: 1200px;
-  margin: 0 auto;
+  margin-top: 3.5rem;
   min-height: calc(100vh - 70px);
 }
 
@@ -800,6 +800,7 @@
 @media (max-width: 768px) {
   .profile-page {
     padding: 1rem;
+    margin-top: 2rem;
   }
 
   .profile-tabs {

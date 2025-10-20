@@ -1,7 +1,7 @@
 .admin-articles {
   padding: 2rem;
   max-width: 1400px;
-  margin: 0 auto;
+  margin-top: 3.5rem;
   background: var(--bg-color);
   min-height: 100vh;
 }
@@ -616,6 +616,7 @@
 @media (max-width: 768px) {
   .admin-articles {
     padding: 1rem;
+    margin-top: 2rem;
   }
 
   .admin-header {

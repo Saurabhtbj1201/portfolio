@@ -1,7 +1,7 @@
 .admin-skills-page {
   padding: 2rem;
   max-width: 1400px;
-  margin: 0 auto;
+  margin-top: 3.5rem;
   min-height: calc(100vh - 70px);
 }
 
@@ -405,6 +405,7 @@
 @media (max-width: 768px) {
   .admin-skills-page {
     padding: 1rem;
+    margin-top: 2rem;
   }
 
   .skills-tabs {
