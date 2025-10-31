@@ -63,4 +63,4 @@ jobs:
         with:
           app-name: 'Portfolio-saurabh'
           slot-name: 'Production'
-          package: ./server
+          package: .
