@@ -1,0 +1,17 @@
+node_modules/
+.expo/
+.expo-shared/
+npm-debug.*
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+*.orig.*
+web-build/
+dist/
+
+# Don't ignore package.json
+!package.json
+!app.json
+!eas.json
