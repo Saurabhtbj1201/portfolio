@@ -102,7 +102,6 @@
 }
 
 .certificates-list-container {
-  max-height: 600px;
   overflow-y: auto;
   padding-right: 0.5rem;
 }
