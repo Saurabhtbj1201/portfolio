@@ -11,7 +11,7 @@ Allow: /sitemap.xml
 Allow: /robots.txt
 
 # Sitemap location
-Sitemap: https://gu-saurabh-tech.vercel.app/sitemap.xml
+Sitemap: https://gu-saurabh.site/sitemap.xml
 
 # Crawl delay (optional - 1 second)
 Crawl-delay: 1

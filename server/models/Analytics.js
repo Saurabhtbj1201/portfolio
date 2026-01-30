@@ -10,7 +10,7 @@ const analyticsSchema = new mongoose.Schema({
     type: String,
     default: '/'
   },
-  referrer: String,
+  referrer: String, 
   userAgent: String,
   device: {
     type: String,
